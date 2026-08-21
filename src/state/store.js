@@ -22,7 +22,7 @@ class SFOStore {
   }
 
   loadState() {
-    const saved = localStorage.getItem('sfo_state_v2');
+    const saved = localStorage.getItem('sfo_state_v3');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -82,7 +82,7 @@ class SFOStore {
 
   saveState() {
     try {
-      localStorage.setItem('sfo_state_v2', JSON.stringify({
+      localStorage.setItem('sfo_state_v3', JSON.stringify({
         currentUser: this.currentUser,
         partners: this.partners,
         portfolioAssets: this.portfolioAssets,
