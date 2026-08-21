@@ -1,0 +1,188 @@
+/* Sahasraartha Family Office LLP - Light Orange & White Clean Native Mobile Layout */
+
+.app-wrapper {
+  min-height: 100vh;
+  background: #f8f4ee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+}
+
+/* Device Shells */
+.device-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Mobile Frame */
+.device-phone {
+  width: 100%;
+  max-width: 440px;
+  min-height: 100vh;
+  height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(234, 88, 12, 0.08);
+}
+
+@media (min-width: 600px) {
+  .device-phone {
+    height: 900px;
+    min-height: 900px;
+    border-radius: 44px;
+    border: 8px solid #ffffff;
+    box-shadow: 0 25px 60px -15px rgba(234, 88, 12, 0.15), 0 0 0 2px #ede4da;
+  }
+}
+
+/* App Header */
+.mobile-app-header {
+  padding: 14px 18px 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 40;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.mobile-brand-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.mobile-brand-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Scroll Body */
+.mobile-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px 80px 16px;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-primary);
+}
+
+/* Bottom Navigation Tab Bar */
+.mobile-bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 66px;
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px 8px 8px;
+  z-index: 50;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 12px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-item svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+  transition: transform 0.2s ease;
+}
+
+.mobile-nav-item.active {
+  color: var(--accent-orange);
+}
+
+.mobile-nav-item.active svg {
+  transform: translateY(-2px);
+  stroke: var(--accent-orange);
+}
+
+.mobile-nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  background: var(--accent-rose);
+  color: #ffffff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+
+/* iOS Home Indicator Bar */
+.mobile-home-indicator {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 60;
+}
+
+.indicator-pill {
+  width: 130px;
+  height: 4px;
+  border-radius: 3px;
+  background: rgba(30, 41, 59, 0.2);
+}

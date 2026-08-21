@@ -1,0 +1,21 @@
+{
+  "name": "sahasraartha-family-office",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cap:init": "cap init",
+    "cap:android": "cap add android && cap open android",
+    "cap:ios": "cap add ios && cap open ios",
+    "cap:sync": "cap sync"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/ios": "^6.1.2",
+    "vite": "^8.2.2"
+  }
+}
