@@ -22,6 +22,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 }
 
 repositories {
@@ -44,12 +48,12 @@ dependencies {
 
 // Automatically sync web assets before building the Android app
 task syncWebAssets(type: Exec) {
-    workingDir '../../'
+    workingDir rootProject.projectDir.parentFile
+    ignoreExitValue true
     if (System.getProperty('os.name').toLowerCase().contains('windows')) {
         commandLine 'cmd', '/c', 'npm run build && npx cap sync android'
     } else {
-        commandLine 'npm', 'run', 'build'
-        commandLine 'npx', 'cap', 'sync', 'android'
+        commandLine 'sh', '-c', 'npm run build && npx cap sync android'
     }
 }
 

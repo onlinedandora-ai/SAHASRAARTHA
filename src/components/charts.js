@@ -26,11 +26,11 @@ export function renderAssetClassAllocationDonut(assets) {
   const total = Object.values(classTotals).reduce((sum, v) => sum + v, 0) || 1;
 
   const slices = [
-    { label: "Venture Debt & Yield", classKey: "DEBT", value: classTotals.DEBT, color: "#3b82f6", pct: (classTotals.DEBT / total) * 100 },
-    { label: "Unlisted VC (Artha IV)", classKey: "UNLISTED_EQUITY", value: classTotals.UNLISTED_EQUITY, color: "#8b5cf6", pct: (classTotals.UNLISTED_EQUITY / total) * 100 },
-    { label: "Listed Equity (9 scrips)", classKey: "LISTED_EQUITY", value: classTotals.LISTED_EQUITY, color: "#10b981", pct: (classTotals.LISTED_EQUITY / total) * 100 },
-    { label: "ETFs & Gold Hedge", classKey: "COMMODITY", value: classTotals.COMMODITY, color: "#f59e0b", pct: (classTotals.COMMODITY / total) * 100 },
-    { label: "Real Estate (TechPark)", classKey: "REAL_ESTATE", value: classTotals.REAL_ESTATE, color: "#ec4899", pct: (classTotals.REAL_ESTATE / total) * 100 }
+    { label: "Venture Debt (RevX II)", classKey: "DEBT", value: classTotals.DEBT, color: "#D4AF37", pct: (classTotals.DEBT / total) * 100 },
+    { label: "Unlisted VC (Artha IV)", classKey: "UNLISTED_EQUITY", value: classTotals.UNLISTED_EQUITY, color: "#7B1930", pct: (classTotals.UNLISTED_EQUITY / total) * 100 },
+    { label: "Listed Equity (9 scrips)", classKey: "LISTED_EQUITY", value: classTotals.LISTED_EQUITY, color: "#10B981", pct: (classTotals.LISTED_EQUITY / total) * 100 },
+    { label: "ETFs & Gold Hedge", classKey: "COMMODITY", value: classTotals.COMMODITY, color: "#E5A024", pct: (classTotals.COMMODITY / total) * 100 },
+    { label: "Real Estate & Co-Invest", classKey: "REAL_ESTATE", value: classTotals.REAL_ESTATE, color: "#3B82F6", pct: (classTotals.REAL_ESTATE / total) * 100 }
   ].filter(s => s.value > 0);
 
   const size = 200;
@@ -78,12 +78,12 @@ export function renderAssetClassAllocationDonut(assets) {
       </div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; font-size: 0.76rem;">
         ${slices.map(s => `
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: #fcf9f5; border-radius: 6px; border: 1px solid #ede4da;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: var(--bg-input); border-radius: 6px; border: 1px solid var(--border-color);">
             <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               <span style="width: 8px; height: 8px; border-radius: 2px; background: ${s.color}; flex-shrink: 0;"></span>
               <span style="color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; font-size: 0.72rem; font-weight: 600;">${s.label}</span>
             </div>
-            <span style="font-weight: 800; color: #0f172a; margin-left: 6px; font-size: 0.74rem;">${s.pct.toFixed(1)}%</span>
+            <span style="font-weight: 800; color: var(--text-primary); margin-left: 6px; font-size: 0.74rem;">${s.pct.toFixed(1)}%</span>
           </div>
         `).join('')}
       </div>

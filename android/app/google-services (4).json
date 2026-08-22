@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1056041223530",
+    "project_id": "saharaartha-f867c",
+    "storage_bucket": "saharaartha-f867c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1056041223530:android:64e416d930622bf37cd113",
+        "android_client_info": {
+          "package_name": "in.sahasraartha.familyoffice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1056041223530-rk07f2vb2vuc6g4b840g51talslo1p2j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVyi2wbhtgPeXmK7yLewLfnk1YqVt4dGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1056041223530-rk07f2vb2vuc6g4b840g51talslo1p2j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

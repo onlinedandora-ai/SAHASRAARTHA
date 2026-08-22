@@ -524,3 +524,208 @@ export const LIQUIDITY_BREAKDOWN = {
   totalLiquidCash: 1677222.27,
   notes: "₹15.07L is held as dry powder in Nuvama awaiting market entry opportunities. Nifty pullback avoided ~₹30k MTM loss."
 };
+
+// Sheet 1: What Drove the Surplus (Inception to 13-Aug-2026)
+export const SURPLUS_DRIVERS = [
+  { component: "RevX Capital Fund II — cash distributions (4 received)", amount: 1198114, type: "income", basis: "Bank credits 03-Oct-25, 03-Jan-26, 04-Apr-26, 03-Jul-26" },
+  { component: "Dividends received", amount: 16341, type: "income", basis: "23 ACH credits to ICICI" },
+  { component: "Realised gains — securities, FY2025-26", amount: 34839, type: "gain", basis: "Nuvama P&L Tax Report FY2025-26" },
+  { component: "Realised losses — securities, FY2026-27 YTD", amount: -37352, type: "loss", basis: "Derived from rolled cost basis" },
+  { component: "F&O — NIFTY Aug-2026 round trip, 24-Jul-2026", amount: 29794, type: "gain", basis: "Gross, before charges (₹1.24 Cr notional)" },
+  { component: "Brokerage, STT, GST, stamp, DP, SEBI charges", amount: -45655, type: "expense", basis: "FY25-26 ₹26,736 + FY26-27 ₹18,919" },
+  { component: "Professional fees — CA and MCA", amount: -51450, type: "expense", basis: "Paid 23-Apr-2026 to ASHOKCA" },
+  { component: "Reimbursement of professional fees", amount: 51450, type: "income", basis: "Devaki Prabhakar 23-Apr-2026" },
+  { component: "Artha Fund IV — fees and diminution", amount: -284044, type: "loss", basis: "Artha capital account statement 30-Jun-2026" },
+  { component: "Unrealised MTM on securities held", amount: 245886, type: "gain", basis: "Held Away Report 13-Aug-2026 vs rolled cost" },
+  { component: "Residual to reconcile", amount: 19937, type: "other", basis: "0.13% of surplus. Dividend routing, charge capitalisation, estimated ledger" }
+];
+
+// Sheet 2: Master Ledger — 5 Reconciliation Accounts Proof
+export const MASTER_ACCOUNTS_RECONCILIATION = [
+  {
+    id: "ACC-01",
+    category: "1. BANK",
+    name: "ICICI Current A/C (818305500002)",
+    openingBalance: 0.00,
+    receipts: 24832600.86,
+    payments: -24662449.59,
+    computedClosing: 170151.27,
+    confirmedClosing: 170151.27,
+    variance: 0.00,
+    status: "RECONCILED",
+    sourceDoc: "ICICI statement, 12-Aug-2026 (131 credits, 95 transactions)"
+  },
+  {
+    id: "ACC-02",
+    category: "2. BROKER",
+    name: "Nuvama Cash Ledger (Client 50191350)",
+    openingBalance: 334457.36,
+    receipts: 1191532.28,
+    payments: -18918.64,
+    computedClosing: 1507071.00,
+    confirmedClosing: 1507071.00,
+    variance: 0.00,
+    status: "RECONCILED",
+    sourceDoc: "Nuvama ledger confirmed 13-Aug-2026 (Dry powder awaiting entry)"
+  },
+  {
+    id: "ACC-03",
+    category: "3. AIF (VENTURE)",
+    name: "Artha Fund IV (Folio 330035, Class S)",
+    openingBalance: 0.00,
+    receipts: 2026857.04,
+    payments: -310901.23,
+    computedClosing: 1715955.81,
+    confirmedClosing: 1715955.81,
+    variance: 0.00,
+    status: "RECONCILED",
+    sourceDoc: "Artha capital account 30-Jun-2026 (Capital ₹20L, Fees ₹2.75L, Pettle ₹33.8k)"
+  },
+  {
+    id: "ACC-04",
+    category: "4. AIF (DEBT)",
+    name: "RevX Capital Fund II (Class E1)",
+    openingBalance: 0.00,
+    receipts: 10000000.00,
+    payments: -58999.00,
+    computedClosing: 9941001.00,
+    confirmedClosing: 9941000.00,
+    variance: 1.00,
+    status: "RECONCILED",
+    sourceDoc: "Held Away Report — 99,410 units at par ₹100.00 (₹1.00 rounding diff)"
+  },
+  {
+    id: "ACC-05",
+    category: "5. SECURITIES",
+    name: "Listed Equities (9) & ETFs (7)",
+    openingBalance: 0.00,
+    receipts: 3093683.09,
+    payments: 0.00,
+    computedClosing: 3093683.09,
+    confirmedClosing: 3093683.09,
+    variance: 0.00,
+    status: "RECONCILED",
+    sourceDoc: "Held Away Report, 13-Aug-2026 (Cost ₹28,47,797 + MTM ₹2,45,886.09)"
+  }
+];
+
+// Sheet 4: Consolidated Balance Sheet
+export const REVISED_BALANCE_SHEET = {
+  asOf: "13-August-2026",
+  assets: [
+    { name: "REVX Capital Trust Fund II — Class E1 (99,410 units @ par)", cost: 9941000, marketValue: 9941000, source: "Held Away Report 13-Aug-2026" },
+    { name: "Artha Fund IV — Class S (20,000 units @ manager capital a/c)", cost: 2000000, marketValue: 1715956, source: "Artha capital account 30-Jun-2026" },
+    { name: "Listed equity — 9 scrips", cost: 1072744, marketValue: 1131516, source: "Held Away Report 13-Aug-2026" },
+    { name: "ETFs — index, gold and liquid (7 instruments)", cost: 1775053, marketValue: 1962167, source: "Held Away Report 13-Aug-2026" },
+    { name: "Broker cash ledger — Nuvama (Client 50191350)", cost: 1507071, marketValue: 1507071, source: "Nuvama ledger confirmed 13-Aug-2026" },
+    { name: "Bank — ICICI current a/c 818305500002", cost: 170151, marketValue: 170151, source: "Statement, 12-Aug-2026" }
+  ],
+  totalAssetsCost: 16466019,
+  totalAssetsMarket: 16427861,
+  fundsEmployed: [
+    { name: "Partners capital contribution (28 partners)", amount: 15250001, source: "36 bank credits, 14-May to 26-May-2025" },
+    { name: "Accumulated surplus", amount: 1177860, source: "Analysed on P&L Statement" }
+  ],
+  totalFundsEmployed: 16427861
+};
+
+// Sheet 5: Profit & Loss Statement
+export const PROFIT_AND_LOSS_STATEMENT = {
+  periods: {
+    fy26Closing: "31-Mar-2026",
+    currentPeriod: "13-Aug-2026"
+  },
+  totalIncome: {
+    fy26: 710462,
+    fy27Ytd: 582724,
+    total: 1293186
+  },
+  totalExpenses: {
+    fy26: -280737,
+    fy27Ytd: -100412,
+    total: -381149
+  },
+  netRealisedResult: {
+    fy26: 429725,
+    fy27Ytd: 482312,
+    total: 912037
+  },
+  unrealisedMovement: {
+    fy26: -97060,
+    fy27Ytd: 342946,
+    total: 245886
+  },
+  residualReconcile: {
+    fy26: 19937,
+    fy27Ytd: 0,
+    total: 19937
+  },
+  netResultForPeriod: {
+    fy26: 352602,
+    fy27Ytd: 825258
+  },
+  cumulativeSurplus: 1177860
+};
+
+// Sheet 6: Fund Flow Triangulation & The Flywheel
+export const FUND_FLOW_FLYWHEEL = {
+  title: "THE FLYWHEEL — DEMONSTRATED, NOT PROJECTED",
+  summary: "The 2nd Artha drawdown of ₹10,00,000 on 07-Jan-2026 was funded 100% from portfolio income: RevX distributions (₹6,61,422) + Kotak Arbitrage redemption (₹2,50,030) + dividends. Zero fresh capital called from partners.",
+  revxCashYieldAnnualizedPct: 13.3,
+  sources: [
+    { item: "Contributor receipts (36 credits, 14 to 26 May 2025)", amount: 15250001 },
+    { item: "Reimbursement of MCA/CA fees — Devaki Prabhakar", amount: 51450 },
+    { item: "RevX distributions received (4 quarterly payouts)", amount: 1198114 },
+    { item: "RevX refund of excess subscription", amount: 58355 },
+    { item: "Dividends received to bank (23 ACH credits)", amount: 16341 },
+    { item: "Net returned from broker / clearing corp", amount: 5701207 },
+    { item: "Total Sources Traced", amount: 22275468 }
+  ],
+  uses: [
+    { item: "RevX Capital Fund II — Class E1 subscription", amount: 10000000 },
+    { item: "Artha Fund IV — Drawdown 1 (24-Jun-2025)", amount: 1000000 },
+    { item: "Artha Fund IV — Drawdown 2 (07-Jan-2026, Funded via Yield)", amount: 1000000 },
+    { item: "Transfers to Nuvama / clearing corp", amount: 9955000 },
+    { item: "Professional fees — CA and MCA", amount: 51450 },
+    { item: "Total Uses Traced", amount: 22006450 },
+    { item: "Closing Bank Balance (12-Aug-2026)", amount: 170151 }
+  ]
+};
+
+// Sheet 8 & 9: Artha Fund IV Detailed Look-Through & Interim Mark Scenarios
+export const ARTHA_LOOKTHROUGH = {
+  folioNumber: "330035",
+  sebiReg: "IN/AIF2/24-25/1507",
+  capitalCommitment: 10000000,
+  drawnCapital: 2000000,
+  undrawnCommitment: 8000000,
+  unitsHeld: 20000,
+  sfoSharePct: 0.338123,
+  sfoLiquidFundsINR: 742014,
+  sfoInvestedLookthroughINR: 973942,
+  scenarios: [
+    { scenario: "A. Carrying value per 30-Jun statement (At Cost)", fundHeldCr: 28.80, sfoLookThrough: 973794, sfoLiquid: 742014, totalValINR: 1715808, multipleOnDrawn: 0.86 },
+    { scenario: "B. At the 1.50x interim mark (Manager Slide)", fundHeldCr: 46.70, sfoLookThrough: 1579034, sfoLiquid: 742014, totalValINR: 2321048, multipleOnDrawn: 1.16 },
+    { scenario: "C. If TakeMe2Space re-rates from 125 to 900 Cr", fundHeldCr: 125.32, sfoLookThrough: 4237222, sfoLiquid: 742014, totalValINR: 4979236, multipleOnDrawn: 2.49 }
+  ],
+  portfolioCompanies: [
+    { name: "TakeMe2Space (TM2Space)", deployedCr: 10.026, heldValueCr: 10.026, multiple: 1.00, pctOfFund: 34.8, sfoLookThroughINR: 339001, status: "Active (Cost carrying)" },
+    { name: "Raana Semiconductors", deployedCr: 6.423, heldValueCr: 6.423, multiple: 1.00, pctOfFund: 22.3, sfoLookThroughINR: 217174, status: "Active (520-CCPS tranche)" },
+    { name: "Calligo Technologies", deployedCr: 5.357, heldValueCr: 17.440, multiple: 2.94, pctOfFund: 18.6, sfoLookThroughINR: 181135, status: "Term Sheet Marked (2.94x)" },
+    { name: "Alwaysrise Stays", deployedCr: 3.002, heldValueCr: 3.002, multiple: 1.00, pctOfFund: 10.4, sfoLookThroughINR: 101504, status: "Active" },
+    { name: "Cheerio Technologies", deployedCr: 2.002, heldValueCr: 2.002, multiple: 1.00, pctOfFund: 6.9, sfoLookThroughINR: 67680, status: "Active" },
+    { name: "Clarity Global Labs", deployedCr: 1.995, heldValueCr: 1.995, multiple: 1.00, pctOfFund: 6.9, sfoLookThroughINR: 67447, status: "Active" },
+    { name: "Pettle Pet Services", deployedCr: 1.002, heldValueCr: 0.000, multiple: 0.00, pctOfFund: 0.0, sfoLookThroughINR: 0, status: "100% Written Down (Diminution ₹33,875)" }
+  ]
+};
+
+// Sheet 11: Open Items & Audit Reconciliation Notes
+export const OPEN_ITEMS_AND_SOURCES = [
+  { id: 1, item: "Contribution Treatment", status: "Resolved", detail: "Bank narrations showing 'Loan' reflect day-of transfer routing. Amounts were credited to partners capital on opening LLP operational accounts. All ₹1.525 Cr is partner equity." },
+  { id: 2, item: "Dry Powder Strategy", status: "Active Management", detail: "₹15,07,071 held at broker cash ledger awaiting favourable entry. Nifty pullback avoided ~₹30k MTM drawdown." },
+  { id: 3, item: "Artha NAV per Unit Discrepancy", status: "Query Raised", detail: "Manager capital account quotes NAV ₹102.88 (₹20,57,600) yet closing balance is ₹17,15,955.80 (₹85.80/unit). Line items support ₹85.80. Query lodged with manager." },
+  { id: 4, item: "RevX Distribution Basis", status: "Verification", detail: "Confirm whether quarterly payouts ₹3,30,711 etc. are gross or net of TDS. Obtain Form 16A / 26AS." },
+  { id: 5, item: "Devaki Prabhakar ₹51,450", status: "Reconciled", detail: "Credited 23-Apr-2026 matching statutory CA and MCA filing fees paid the same day. Net neutral to surplus." },
+  { id: 6, item: "Fund Identity in Prior Notes", status: "Corrected", detail: "Holding is ARTHA FUND IV (SEBI IN/AIF2/24-25/1507), not Artha Venture Fund II." },
+  { id: 7, item: "Idle Cash Deployment", status: "Monitoring", detail: "Estimated ₹15.07L in broker ledger earning zero interest. Deploying into liquid funds / selective dips." }
+];

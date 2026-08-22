@@ -155,6 +155,23 @@ export function renderPartnerSettings() {
         </div>
       </div>
 
+      <!-- DEDICATED SIGN OUT / LOGOUT ACTION -->
+      <div class="card" style="margin-bottom: 14px; padding: 14px 16px; border: 1.5px solid rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: #ef4444; display: flex; align-items: center; gap: 6px;">
+              <span>🚪</span> Account Session
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+              Logged in as <strong style="color: var(--text-secondary);">${user.fullName}</strong>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-settings-signout" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 700; color: #ef4444; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.1); cursor: pointer; display: flex; align-items: center; gap: 5px;">
+            <span>🚪</span> Sign Out
+          </button>
+        </div>
+      </div>
+
       <!-- APP VERSION & GOVERNANCE INFO -->
       <div style="text-align: center; font-size: 0.7rem; color: var(--text-muted); padding: 10px;">
         <div>Sahasraartha Family Office LLP &bull; v1.0.0 Production</div>

@@ -1,9 +1,5 @@
-/**
- * Printable Holding Statement & Tax Certificate Generator
- * Formalized LLP statement with seals, KYC metadata (PAN, Father's Name, Residential Address), unit balance, NAV, returns, and Form 16A/tax notes.
- */
-
 import { store } from '../state/store.js';
+import { renderSFOEmblem } from './sfoLogo.js';
 import { formatINR, formatUnits, formatPercent, formatDate } from '../utils/formatters.js';
 
 export function renderStatementModal() {
@@ -35,11 +31,14 @@ export function renderStatementModal() {
 
         <div class="modal-body statement-print-sheet" style="padding: 32px; font-family: 'Plus Jakarta Sans', sans-serif;">
           <!-- Formal SFO Letterhead -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px;">
-            <div>
-              <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; color: #0f172a; margin-bottom: 2px; font-weight: 800;">SAHASRAARTHA FAMILY OFFICE LLP</h2>
-              <p style="font-size: 0.8rem; color: #475569;">Regd. Office: Bangalore, Karnataka | AIF SEBI IN/AIF2/24-25/1507</p>
-              <p style="font-size: 0.76rem; color: #64748b;">Managing Partner: Srikanth | ICICI A/C: 818305500002</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #D4AF37; padding-bottom: 16px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              ${renderSFOEmblem({ size: 54 })}
+              <div>
+                <h2 style="font-family: 'Cinzel', 'Outfit', serif; font-size: 1.45rem; color: #0f172a; margin-bottom: 2px; font-weight: 800; letter-spacing: 0.03em;">SAHASRAARTHA FAMILY OFFICE LLP</h2>
+                <p style="font-size: 0.8rem; color: #475569;">Regd. Office: Bangalore, Karnataka | AIF SEBI IN/AIF2/24-25/1507</p>
+                <p style="font-size: 0.76rem; color: #64748b;">Managing Partner: Srikanth | ICICI A/C: 818305500002</p>
+              </div>
             </div>
             <div style="text-align: right;">
               <div style="font-size: 0.72rem; text-transform: uppercase; color: #64748b; font-weight: 700;">STATEMENT DATE</div>

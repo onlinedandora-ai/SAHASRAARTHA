@@ -39,7 +39,7 @@ export function renderAuthModal({ isOpen, onClose }) {
           <div id="auth-step-1">
             <div class="form-group">
               <label class="form-label">Registered Mobile / Email</label>
-              <input type="text" id="auth-input-id" class="form-input" placeholder="+91 98450 12345 or srikanth@sahasraartha.in" value="${store.currentUser ? store.currentUser.email : ''}">
+              <input type="text" id="auth-input-id" class="form-input" placeholder="Enter registered mobile number or email" value="">
               <span class="input-hint">Must match the registered LLP whitelist records.</span>
             </div>
             <button class="btn btn-primary" id="btn-send-otp" style="width: 100%; margin-top: 8px;">
@@ -49,54 +49,22 @@ export function renderAuthModal({ isOpen, onClose }) {
 
           <div id="auth-step-2" style="display: none; margin-top: 16px;">
             <div style="background: var(--bg-primary); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 16px; border: 1px solid var(--border-color); text-align: center;">
-              <p style="font-size: 0.82rem; color: var(--accent-emerald);">OTP sent! For demo verification, use code <strong class="mono" style="color: var(--accent-gold);">778899</strong></p>
+              <p style="font-size: 0.85rem; color: var(--accent-emerald);">OTP verification code has been sent to your registered mobile/email.</p>
             </div>
             <div class="form-group">
               <label class="form-label" style="text-align: center; display: block;">Enter 6-Digit Secure OTP</label>
               <div style="display: flex; gap: 8px; justify-content: center; margin: 10px 0;">
-                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="7">
-                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="7">
-                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="8">
-                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="8">
-                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="9">
-                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="9">
+                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="" placeholder="•">
+                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="" placeholder="•">
+                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="" placeholder="•">
+                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="" placeholder="•">
+                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="" placeholder="•">
+                <input type="text" maxlength="1" class="form-input mono otp-box" style="width: 44px; text-align: center; font-size: 1.2rem; font-weight: bold;" value="" placeholder="•">
               </div>
             </div>
             <button class="btn btn-emerald" id="btn-verify-otp" style="width: 100%; margin-top: 12px;">
               Verify & Enter Portal
             </button>
-          </div>
-
-          <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-              <span style="font-size: 0.78rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;">Instant Demo Persona Switcher</span>
-              <span class="badge badge-category">1-Click Login</span>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto; padding-right: 4px;">
-              <div style="font-size: 0.72rem; color: var(--accent-gold); font-weight: 700;">SUPER ADMIN</div>
-              ${superAdmins.map(p => `
-                <button class="btn btn-secondary btn-sm quick-switch-btn" data-id="${p.partnerId}" style="justify-content: space-between; text-align: left;">
-                  <span><strong>${p.fullName}</strong> (${p.partnerId})</span>
-                  <span class="role-tag role-super-admin">Super Admin</span>
-                </button>
-              `).join('')}
-
-              <div style="font-size: 0.72rem; color: #a5b4fc; font-weight: 700; margin-top: 6px;">EXECUTIVE DIRECTORS / COMMITTEE</div>
-              ${committeeMembers.slice(0, 3).map(p => `
-                <button class="btn btn-secondary btn-sm quick-switch-btn" data-id="${p.partnerId}" style="justify-content: space-between; text-align: left;">
-                  <span><strong>${p.fullName}</strong> (${p.partnerId})</span>
-                  <span class="role-tag role-committee">Committee</span>
-                </button>
-              `).join('')}
-
-              <div style="font-size: 0.72rem; color: #6ee7b7; font-weight: 700; margin-top: 6px;">INDIVIDUAL LP INVESTORS</div>
-              ${lps.slice(0, 5).map(p => `
-                <button class="btn btn-secondary btn-sm quick-switch-btn" data-id="${p.partnerId}" style="justify-content: space-between; text-align: left;">
-                  <span><strong>${p.fullName}</strong> (${p.partnerId})</span>
-                  <span class="role-tag role-lp">LP Partner</span>
-                </button>
-              `).join('')}
-            </div>
           </div>
         </div>
       </div>
@@ -108,7 +76,6 @@ export function attachAuthEvents() {
   const btnClose = document.getElementById('btn-close-auth-modal');
   const btnSendOtp = document.getElementById('btn-send-otp');
   const btnVerifyOtp = document.getElementById('btn-verify-otp');
-  const quickSwitchBtns = document.querySelectorAll('.quick-switch-btn');
 
   if (btnClose) {
     btnClose.addEventListener('click', () => {
@@ -119,6 +86,11 @@ export function attachAuthEvents() {
 
   if (btnSendOtp) {
     btnSendOtp.addEventListener('click', () => {
+      const inputVal = document.getElementById('auth-input-id')?.value.trim();
+      if (!inputVal) {
+        alert('Please enter your registered mobile number or email');
+        return;
+      }
       document.getElementById('auth-step-1').style.display = 'none';
       document.getElementById('auth-step-2').style.display = 'block';
     });
@@ -128,7 +100,7 @@ export function attachAuthEvents() {
     btnVerifyOtp.addEventListener('click', () => {
       const inputVal = document.getElementById('auth-input-id')?.value.toLowerCase().trim();
       const matched = store.partners.find(p => 
-        p.email.toLowerCase().includes(inputVal) || 
+        p.email.toLowerCase() === inputVal || 
         p.mobile.includes(inputVal) || 
         p.partnerId.toLowerCase() === inputVal
       ) || store.partners[0];
@@ -138,13 +110,4 @@ export function attachAuthEvents() {
       if (modal) modal.remove();
     });
   }
-
-  quickSwitchBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const partnerId = btn.getAttribute('data-id');
-      store.setCurrentUser(partnerId);
-      const modal = document.getElementById('auth-modal-overlay');
-      if (modal) modal.remove();
-    });
-  });
 }

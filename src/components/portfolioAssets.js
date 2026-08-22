@@ -243,12 +243,12 @@ function renderAssetDrilldownModal(asset, user, psr) {
 
 function getAssetColor(cls) {
   switch (cls) {
-    case 'DEBT': return '#3b82f6';
-    case 'UNLISTED_EQUITY': return '#8b5cf6';
-    case 'LISTED_EQUITY': return '#10b981';
-    case 'COMMODITY': return '#f59e0b';
-    case 'REAL_ESTATE': return '#ec4899';
-    default: return '#3b82f6';
+    case 'DEBT': return '#D4AF37'; // Regal Gold
+    case 'UNLISTED_EQUITY': return '#7B1930'; // Royal Burgundy
+    case 'LISTED_EQUITY': return '#10B981'; // Emerald Green
+    case 'COMMODITY': return '#E5A024'; // Amber Gold
+    case 'REAL_ESTATE': return '#3B82F6'; // Royal Navy Blue
+    default: return '#D4AF37';
   }
 }
 

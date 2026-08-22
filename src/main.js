@@ -9,6 +9,7 @@
 
 import { store } from './state/store.js';
 import { formatINR } from './utils/formatters.js';
+import { renderSFOEmblem } from './components/sfoLogo.js';
 import { renderPartnerPortal, attachPartnerEvents } from './components/partnerPortal.js';
 import { renderPortfolioAssets, attachPortfolioAssetsEvents } from './components/portfolioAssets.js';
 import { renderCapitalLedger, attachCapitalLedgerEvents } from './components/capitalLedger.js';
@@ -22,9 +23,48 @@ import { renderStatementModal, attachStatementEvents } from './components/statem
 import { renderAndroidLogin, attachAndroidLoginEvents } from './android/login/androidLogin.js';
 import { renderIOSLogin, attachIOSLoginEvents } from './ios/login/iosLogin.js';
 
+// Firebase Authentication
+import { initFirebase, checkRedirectResult, onAuthChanged, signOut as firebaseSignOut } from './services/firebaseAuth.js';
+
 // Detect platform or default
 const isAndroid = /Android/i.test(navigator.userAgent);
 let isAuthenticated = false; // Start directly on clean reference login screen
+
+// ─── Initialize Firebase Auth on Boot ──────────────────────────────────────
+try {
+  initFirebase();
+  console.log('[App] Firebase initialized');
+} catch (err) {
+  console.error('[App] Firebase init failed:', err);
+}
+
+// Check for Google redirect result (in case signInWithRedirect was used)
+checkRedirectResult().then(result => {
+  if (result && result.profile) {
+    console.log('[App] Redirect sign-in result:', result.profile.email);
+    store.setFirebaseUser(result.profile);
+    // Auto-match to partner
+    const email = result.profile.email;
+    const phone = result.profile.phoneNumber;
+    const matched = store.partners.find(p =>
+      (email && p.email.toLowerCase() === email.toLowerCase()) ||
+      (phone && p.mobile && p.mobile.replace(/\D/g, '').slice(-10) === phone.replace(/\D/g, '').slice(-10))
+    );
+    if (matched) {
+      store.setCurrentUser(matched.partnerId);
+    } else if (email) {
+      store.registerPartner({
+        fullName: result.profile.displayName || email.split('@')[0].toUpperCase(),
+        email: email,
+        mobile: phone || '',
+        role: 'PARTNER',
+        committedCapital: 500000
+      });
+    }
+    isAuthenticated = true;
+    renderApp();
+  }
+}).catch(() => { /* ignore */ });
 
 function renderApp() {
   const app = document.getElementById('app');
@@ -57,23 +97,31 @@ function renderApp() {
             <!-- Authenticated Mobile App Header Bar -->
             <div class="mobile-app-header">
               <div class="mobile-brand">
-                <div class="mobile-brand-icon">S</div>
+                <div class="mobile-brand-icon">
+                  ${renderSFOEmblem({ size: 34 })}
+                </div>
                 <div>
                   <div class="mobile-brand-title">SAHASRAARTHA SFO</div>
                   <div class="mobile-brand-sub">${user.fullName} &bull; ${user.dpin ? 'DPIN: ' + user.dpin : user.partnerId}</div>
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; gap: 6px;">
-                <button class="btn btn-secondary btn-sm" id="btn-open-statement" style="padding: 5px 8px; font-size: 0.7rem;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  Statement
+              <div class="mobile-header-actions">
+                <button class="mobile-header-btn" id="btn-toggle-theme" title="${store.theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}">
+                  ${store.theme === 'dark' ? `
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  ` : `
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  `}
                 </button>
-                <button class="btn btn-secondary btn-sm" id="btn-open-profile-tab" style="padding: 5px 8px; font-size: 0.7rem;" title="Partner Profile">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <button class="mobile-header-btn" id="btn-open-statement" title="Account Statement">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </button>
-                <button class="btn btn-secondary btn-sm" id="btn-lock-app" style="padding: 5px 8px; font-size: 0.7rem;" title="Logout / Lock App">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <button class="mobile-header-btn" id="btn-open-profile-tab" title="Partner Profile">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <button class="mobile-header-btn mobile-header-btn-danger" id="btn-lock-app" title="Sign Out">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 </button>
               </div>
             </div>
@@ -152,11 +200,25 @@ function attachGlobalEvents() {
       });
     }
   } else {
-    // Logout / Lock App button
-    document.getElementById('btn-lock-app')?.addEventListener('click', () => {
+    // Toggle Light / Dark Theme button
+    document.getElementById('btn-toggle-theme')?.addEventListener('click', () => {
+      store.toggleTheme();
+    });
+
+    // Logout / Lock App button (also signs out from Firebase)
+    const handleSignOut = async () => {
+      try {
+        await firebaseSignOut();
+        store.clearFirebaseUser();
+      } catch (err) {
+        console.warn('[App] Firebase sign-out error:', err);
+      }
       isAuthenticated = false;
       renderApp();
-    });
+    };
+
+    document.getElementById('btn-lock-app')?.addEventListener('click', handleSignOut);
+    document.getElementById('btn-settings-signout')?.addEventListener('click', handleSignOut);
 
     // Mobile Bottom Navigation Tab Switching
     document.querySelectorAll('.mobile-nav-item').forEach(btn => {

@@ -38,10 +38,11 @@ class SFOStore {
         this.brokerCash = parsed.brokerCash !== undefined ? parsed.brokerCash : LIQUIDITY_BREAKDOWN.brokerCashNuvama;
         this.bankBalance = parsed.bankBalance !== undefined ? parsed.bankBalance : LIQUIDITY_BREAKDOWN.bankBalanceICICI;
         this.accruedLiabilities = parsed.accruedLiabilities !== undefined ? parsed.accruedLiabilities : 0.00;
-        this.theme = 'light';
+        this.theme = parsed.theme || 'light';
         this.activeTab = parsed.activeTab || 'overview';
         this.selectedFiscalYear = parsed.selectedFiscalYear || 'FY2026-27';
         this.biometricsEnabled = parsed.biometricsEnabled !== undefined ? parsed.biometricsEnabled : true;
+        this.firebaseUser = parsed.firebaseUser || null; // { uid, email, phoneNumber, displayName, photoURL, providerId }
         this.selectedAssetId = null;
         this.selectedDocId = null;
         this.activeModal = null; // 'STATEMENT' | 'CAPITAL_CALL' | 'DISTRIBUTION_RUN' | 'PROPOSAL' | 'DOC_PREVIEW' | 'DRILLDOWN' | 'BANK_UPDATE' | 'AUTH'
@@ -71,6 +72,7 @@ class SFOStore {
     this.activeTab = 'overview';
     this.selectedFiscalYear = 'FY2026-27';
     this.biometricsEnabled = true;
+    this.firebaseUser = null;
     this.selectedAssetId = null;
     this.selectedDocId = null;
     this.activeModal = null;
@@ -99,6 +101,7 @@ class SFOStore {
         activeTab: this.activeTab,
         selectedFiscalYear: this.selectedFiscalYear,
         biometricsEnabled: this.biometricsEnabled,
+        firebaseUser: this.firebaseUser,
         auditLog: this.auditLog
       }));
     } catch (e) {
@@ -153,6 +156,35 @@ class SFOStore {
   }
 
   // --- Auth & User Switching ---
+  toggleTheme() {
+    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    this.saveState();
+    this.notify();
+  }
+
+  setTheme(theme) {
+    this.theme = theme;
+    this.saveState();
+    this.notify();
+  }
+
+  /**
+   * Store the Firebase authenticated user profile.
+   * @param {object|null} profile - { uid, email, phoneNumber, displayName, photoURL, providerId }
+   */
+  setFirebaseUser(profile) {
+    this.firebaseUser = profile;
+    this.saveState();
+  }
+
+  /**
+   * Clear Firebase user on sign-out.
+   */
+  clearFirebaseUser() {
+    this.firebaseUser = null;
+    this.saveState();
+  }
+
   setCurrentUser(partnerId) {
     const partner = this.partners.find(p => p.partnerId === partnerId);
     if (partner) {

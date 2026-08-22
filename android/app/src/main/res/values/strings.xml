@@ -4,4 +4,5 @@
     <string name="title_activity_main">Sahasraartha SFO</string>
     <string name="package_name">in.sahasraartha.familyoffice</string>
     <string name="custom_url_scheme">in.sahasraartha.familyoffice</string>
+    <string name="server_client_id">302063091598-5e9k6hl03ah79i7vluanl7muumtmgi9g.apps.googleusercontent.com</string>
 </resources>

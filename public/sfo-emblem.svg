@@ -1,0 +1,99 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3C4" />
+      <stop offset="25%" stop-color="#E5C158" />
+      <stop offset="50%" stop-color="#D4AF37" />
+      <stop offset="75%" stop-color="#AA771C" />
+      <stop offset="100%" stop-color="#F5E298" />
+    </linearGradient>
+
+    <linearGradient id="goldGradLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="30%" stop-color="#FFEBB0" />
+      <stop offset="70%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#8B5E0F" />
+    </linearGradient>
+
+    <linearGradient id="goldGradDark" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#4A121A" />
+      <stop offset="40%" stop-color="#7B1930" />
+      <stop offset="70%" stop-color="#B38024" />
+      <stop offset="100%" stop-color="#D4AF37" />
+    </linearGradient>
+
+    <radialGradient id="goldCoreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFEAA7" stop-opacity="1" />
+      <stop offset="45%" stop-color="#D4AF37" stop-opacity="0.9" />
+      <stop offset="85%" stop-color="#7B1930" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#12151F" stop-opacity="1" />
+    </radialGradient>
+
+    <radialGradient id="burgundyBackdrop" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5A1220" />
+      <stop offset="75%" stop-color="#2D0A11" />
+      <stop offset="100%" stop-color="#0E1017" />
+    </radialGradient>
+  </defs>
+
+  <circle cx="100" cy="100" r="94" stroke="url(#goldGrad1)" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+  <circle cx="100" cy="100" r="90" fill="url(#burgundyBackdrop)" stroke="url(#goldGrad1)" stroke-width="2" />
+
+  <g stroke="url(#goldGrad1)" stroke-width="1.5" fill="url(#goldGradLight)" fill-opacity="0.15">
+    <path d="M100 8 C112 35 128 65 100 85 C72 65 88 35 100 8 Z" />
+    <path d="M165 35 C155 58 138 82 110 90 C118 62 142 45 165 35 Z" />
+    <path d="M192 100 C165 112 135 128 115 100 C135 72 165 88 192 100 Z" />
+    <path d="M165 165 C142 155 118 138 110 110 C138 118 155 142 165 165 Z" />
+    <path d="M100 192 C88 165 72 135 100 115 C128 135 112 165 100 192 Z" />
+    <path d="M35 165 C45 142 62 118 90 110 C82 138 58 155 35 165 Z" />
+    <path d="M8 100 C35 88 65 72 85 100 C65 128 35 112 8 100 Z" />
+    <path d="M35 35 C58 45 82 62 90 90 C62 82 45 58 35 35 Z" />
+  </g>
+
+  <circle cx="100" cy="12" r="2.5" fill="url(#goldGrad1)" />
+  <circle cx="188" cy="100" r="2.5" fill="url(#goldGrad1)" />
+  <circle cx="100" cy="188" r="2.5" fill="url(#goldGrad1)" />
+  <circle cx="12" cy="100" r="2.5" fill="url(#goldGrad1)" />
+
+  <g stroke="url(#goldGrad1)" stroke-width="1.8" fill="url(#goldGradLight)" fill-opacity="0.85">
+    <path d="M100 32 C115 50 120 75 100 90 C80 75 85 50 100 32 Z" />
+    <path d="M100 32 L100 90" stroke="url(#goldGradDark)" stroke-width="1" opacity="0.8" />
+    
+    <path d="M134 41 C142 62 135 86 112 94 C104 74 117 53 134 41 Z" />
+    <path d="M159 66 C155 88 138 104 118 102 C118 80 139 68 159 66 Z" />
+    
+    <path d="M168 100 C150 115 125 120 110 100 C125 80 150 85 168 100 Z" />
+    <path d="M168 100 L110 100" stroke="url(#goldGradDark)" stroke-width="1" opacity="0.8" />
+    
+    <path d="M159 134 C139 132 118 120 118 98 C138 96 155 112 159 134 Z" />
+    <path d="M134 159 C117 147 104 126 112 106 C135 114 142 138 134 159 Z" />
+
+    <path d="M100 168 C85 150 80 125 100 110 C120 125 115 150 100 168 Z" />
+    <path d="M100 168 L100 110" stroke="url(#goldGradDark)" stroke-width="1" opacity="0.8" />
+
+    <path d="M66 159 C58 138 65 114 88 106 C96 126 83 147 66 159 Z" />
+    <path d="M41 134 C45 112 62 96 82 98 C82 120 61 132 41 134 Z" />
+
+    <path d="M32 100 C50 85 75 80 90 100 C75 120 50 115 32 100 Z" />
+    <path d="M32 100 L90 100" stroke="url(#goldGradDark)" stroke-width="1" opacity="0.8" />
+
+    <path d="M41 66 C61 68 82 80 82 102 C62 104 45 88 41 66 Z" />
+    <path d="M66 41 C83 53 96 74 88 94 C65 86 58 62 66 41 Z" />
+  </g>
+
+  <circle cx="100" cy="100" r="48" fill="url(#burgundyBackdrop)" stroke="url(#goldGrad1)" stroke-width="2.5" />
+  <circle cx="100" cy="100" r="42" fill="none" stroke="url(#goldGrad1)" stroke-width="1" stroke-dasharray="2 2" />
+
+  <circle cx="100" cy="100" r="34" fill="url(#goldCoreGlow)" stroke="url(#goldGrad1)" stroke-width="2.5" />
+
+  <g stroke="url(#goldGradLight)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M84 92 C74 78 62 88 66 102 C70 116 86 112 100 100 C114 88 130 84 134 98 C138 112 126 122 116 108 C106 94 94 106 100 100" />
+    <path d="M116 92 C126 78 138 88 134 102 C130 116 114 112 100 100 C86 88 70 84 66 98 C62 112 74 122 84 108 C94 94 106 106 100 100" />
+  </g>
+
+  <circle cx="82" cy="100" r="3.2" fill="url(#goldGrad1)" />
+  <circle cx="118" cy="100" r="3.2" fill="url(#goldGrad1)" />
+  <circle cx="100" cy="80" r="2.8" fill="url(#goldGrad1)" />
+  <circle cx="100" cy="120" r="2.8" fill="url(#goldGrad1)" />
+  <circle cx="100" cy="100" r="2.2" fill="#FFFFFF" />
+</svg>
