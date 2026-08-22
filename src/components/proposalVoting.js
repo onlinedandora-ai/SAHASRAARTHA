@@ -43,80 +43,80 @@ export function renderProposalVoting() {
 
           return `
             <div class="card" style="padding: 16px; border-top: 3px solid ${quorumReached ? 'var(--accent-emerald)' : 'var(--accent-gold)'};">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 1 1 180px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span class="badge badge-pending" style="font-size: 0.62rem;">${deal.status}</span>
                     <span class="badge" style="background: rgba(255,255,255,0.06); font-size: 0.62rem; color: var(--accent-gold);">${deal.category}</span>
                     <span class="mono" style="font-size: 0.68rem; color: var(--text-muted);">${deal.dealId}</span>
                   </div>
-                  <h3 style="font-size: 1.05rem; color: var(--text-primary); margin-top: 4px;">${deal.title}</h3>
-                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                  <h3 style="font-size: 1.05rem; color: var(--text-primary); margin-top: 4px; word-break: break-word;">${deal.title}</h3>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; word-break: break-word;">
                     Proposed by: <strong style="color: var(--text-secondary);">${deal.proposer}</strong> &bull; Deadline: <strong>${formatDate(deal.votingDeadline)}</strong>
                   </div>
                 </div>
 
-                <div style="text-align: right; flex-shrink: 0;">
+                <div style="text-align: right; flex-shrink: 0; min-width: 90px;">
                   <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-gold); font-family: 'Outfit', sans-serif;">
                     ${formatINR(deal.targetAmount, { compact: true })}
                   </div>
-                  <span class="badge ${quorumReached ? 'badge-verified' : 'badge-pending'}" style="font-size: 0.62rem;">
+                  <span class="badge ${quorumReached ? 'badge-verified' : 'badge-pending'}" style="font-size: 0.62rem; margin-top: 2px;">
                     ${quorumReached ? 'Quorum Met' : 'Voting Open'}
                   </span>
                 </div>
               </div>
 
               <!-- Deal Summary -->
-              <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+              <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-top: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px; word-break: break-word;">
                 ${deal.summary}
               </p>
 
               <!-- Quorum & Voting Progress Bar -->
               <div style="margin-top: 12px;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.72rem; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; font-size: 0.72rem; margin-bottom: 4px;">
                   <span style="color: var(--text-muted);">Partner Approval (${deal.votes.for}/${totalVotes} votes)</span>
                   <span style="font-weight: 700; color: ${quorumReached ? 'var(--accent-emerald)' : 'var(--accent-gold)'};">
                     ${forPct.toFixed(1)}% (Threshold ${deal.quorumNeededPct}%)
                   </span>
                 </div>
-                <div style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; position: relative;">
+                <div style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06); overflow: hidden; position: relative; width: 100%;">
                   <div style="height: 100%; width: ${forPct}%; background: ${quorumReached ? 'var(--accent-emerald)' : 'var(--accent-gold)'}; border-radius: 3px;"></div>
                 </div>
               </div>
 
-              <!-- Live Partner Voting Buttons -->
-              <div style="display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
-                <button class="btn btn-sm btn-vote" data-deal-id="${deal.dealId}" data-vote="for" style="flex: 1; background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3);">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  Vote FOR (${deal.votes.for})
+              <!-- Live Partner Voting Buttons (Responsive Flexbox) -->
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-subtle); width: 100%;">
+                <button class="btn btn-sm btn-vote" data-deal-id="${deal.dealId}" data-vote="for" style="flex: 1 1 90px; min-width: 0; padding: 6px 8px; font-size: 0.72rem; background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); text-overflow: ellipsis;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                  FOR (${deal.votes.for})
                 </button>
-                <button class="btn btn-sm btn-vote" data-deal-id="${deal.dealId}" data-vote="against" style="flex: 1; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3);">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <button class="btn btn-sm btn-vote" data-deal-id="${deal.dealId}" data-vote="against" style="flex: 1 1 90px; min-width: 0; padding: 6px 8px; font-size: 0.72rem; background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); text-overflow: ellipsis;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink: 0;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   AGAINST (${deal.votes.against})
                 </button>
-                <button class="btn btn-sm btn-vote" data-deal-id="${deal.dealId}" data-vote="abstain" style="flex: 1; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color);">
+                <button class="btn btn-sm btn-vote" data-deal-id="${deal.dealId}" data-vote="abstain" style="flex: 1 1 90px; min-width: 0; padding: 6px 8px; font-size: 0.72rem; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border-color); text-overflow: ellipsis;">
                   ABSTAIN (${deal.votes.abstain})
                 </button>
               </div>
 
               <!-- Deliberation Comments Thread -->
-              <div style="margin-top: 12px;">
+              <div style="margin-top: 12px; width: 100%;">
                 <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Partner Deliberation:</div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
                   ${deal.comments.map(c => `
-                    <div style="background: rgba(255,255,255,0.02); border-radius: 4px; padding: 6px 8px; font-size: 0.72rem;">
-                      <div style="display: flex; justify-content: space-between; color: var(--accent-gold); font-weight: 600;">
+                    <div style="background: rgba(255,255,255,0.02); border-radius: 4px; padding: 6px 8px; font-size: 0.72rem; word-break: break-word;">
+                      <div style="display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; color: var(--accent-gold); font-weight: 600;">
                         <span>${c.author}</span>
                         <span style="font-size: 0.65rem; color: var(--text-muted);">${formatDate(c.date)}</span>
                       </div>
-                      <div style="color: var(--text-secondary); margin-top: 2px;">${c.text}</div>
+                      <div style="color: var(--text-secondary); margin-top: 2px; word-break: break-word;">${c.text}</div>
                     </div>
                   `).join('')}
                 </div>
 
-                <div style="display: flex; gap: 6px; margin-top: 8px;">
-                  <input type="text" class="input input-comment" data-deal-id="${deal.dealId}" placeholder="Add your discussion note..." style="font-size: 0.74rem; padding: 6px 10px;" />
-                  <button class="btn btn-secondary btn-sm btn-post-comment" data-deal-id="${deal.dealId}" style="padding: 6px 10px; font-size: 0.72rem;">Post</button>
+                <div style="display: flex; gap: 6px; margin-top: 8px; width: 100%;">
+                  <input type="text" class="input input-comment" data-deal-id="${deal.dealId}" placeholder="Add your discussion note..." style="font-size: 0.74rem; padding: 6px 10px; flex: 1; min-width: 0;" />
+                  <button class="btn btn-secondary btn-sm btn-post-comment" data-deal-id="${deal.dealId}" style="padding: 6px 12px; font-size: 0.72rem; flex-shrink: 0;">Post</button>
                 </div>
               </div>
             </div>

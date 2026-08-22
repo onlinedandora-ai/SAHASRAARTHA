@@ -68,59 +68,59 @@ export function renderCapitalLedger() {
         </button>
       </div>
 
-      <!-- DUAL LEDGER SUMMARY CARDS (Inflows vs Outflows) -->
-      <div class="grid-2" style="gap: 10px; margin-bottom: 14px;">
-        <div class="card" style="padding: 14px; border-top: 3px solid var(--accent-gold);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+      <!-- DUAL LEDGER SUMMARY CARDS (Responsive Flexbox) -->
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-bottom: 14px; box-sizing: border-box;">
+        <div class="card" style="flex: 1 1 140px; min-width: 0; padding: 14px; border-top: 3px solid var(--accent-gold); box-sizing: border-box;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
             <span class="metric-label" style="font-size: 0.7rem; color: var(--accent-gold);">TOTAL INFLOWS</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--accent-gold)"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
           </div>
-          <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 4px; font-family: 'Outfit', sans-serif;">
+          <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-top: 4px; font-family: 'Outfit', sans-serif; word-break: break-word;">
             ${formatINR(totalInflows, { compact: true })}
           </div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Capital Calls & Subscriptions</div>
         </div>
 
-        <div class="card" style="padding: 14px; border-top: 3px solid var(--accent-emerald);">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="card" style="flex: 1 1 140px; min-width: 0; padding: 14px; border-top: 3px solid var(--accent-emerald); box-sizing: border-box;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
             <span class="metric-label" style="font-size: 0.7rem; color: var(--accent-emerald);">TOTAL OUTFLOWS</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="var(--accent-emerald)"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
           </div>
-          <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-emerald); margin-top: 4px; font-family: 'Outfit', sans-serif;">
+          <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-emerald); margin-top: 4px; font-family: 'Outfit', sans-serif; word-break: break-word;">
             ${formatINR(totalOutflows, { compact: true })}
           </div>
           <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Distributions & Yield Payouts</div>
         </div>
       </div>
 
-      <!-- SCREEN 5: ACTIVE CAPITAL CALL ACTION HERO -->
+      <!-- SCREEN 5: ACTIVE CAPITAL CALL ACTION HERO (Responsive Flexbox) -->
       ${activeCall ? `
         <div class="card highlight-gold" style="margin-bottom: 16px; padding: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
-            <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+            <div style="min-width: 0; flex: 1;">
               <span class="metric-label" style="color: var(--accent-gold); font-size: 0.68rem;">ACTIVE CAPITAL CALL #01/2026-27</span>
-              <h3 style="font-size: 1.05rem; color: #ffffff; margin-top: 2px;">${activeCall.purpose}</h3>
+              <h3 style="font-size: 1.05rem; color: #ffffff; margin-top: 2px; word-break: break-word;">${activeCall.purpose}</h3>
             </div>
-            <span class="badge badge-pending" style="font-size: 0.65rem;">Due: ${formatDate(activeCall.dueDate)}</span>
+            <span class="badge badge-pending" style="font-size: 0.65rem; flex-shrink: 0;">Due: ${formatDate(activeCall.dueDate)}</span>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.25); border-radius: 6px;">
-            <div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.25); border-radius: 6px; width: 100%; box-sizing: border-box;">
+            <div style="flex: 1 1 120px; min-width: 0;">
               <div style="font-size: 0.68rem; color: var(--text-muted);">Fund Target Call</div>
-              <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary);">${formatINR(activeCall.totalCallAmount, { compact: true })}</div>
+              <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-primary); word-break: break-word;">${formatINR(activeCall.totalCallAmount, { compact: true })}</div>
             </div>
-            <div>
+            <div style="flex: 1 1 120px; min-width: 0;">
               <div style="font-size: 0.68rem; color: var(--text-muted);">Your Quota (${(psr * 100).toFixed(3)}%)</div>
-              <div style="font-weight: 800; font-size: 1.05rem; color: var(--accent-gold);">${formatINR(partnerCallQuota)}</div>
+              <div style="font-weight: 800; font-size: 1.05rem; color: var(--accent-gold); word-break: break-word;">${formatINR(partnerCallQuota)}</div>
             </div>
           </div>
 
-          <div style="display: flex; gap: 8px; margin-top: 12px;">
-            <button class="btn btn-primary btn-sm" id="btn-show-upi-qr" style="flex: 1; padding: 7px; font-size: 0.78rem;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; width: 100%;">
+            <button class="btn btn-primary btn-sm" id="btn-show-upi-qr" style="flex: 1 1 130px; padding: 7px; font-size: 0.78rem;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               View Bank & UPI QR
             </button>
-            <button class="btn btn-secondary btn-sm" id="btn-submit-utr-quick" style="flex: 1; padding: 7px; font-size: 0.78rem;">
+            <button class="btn btn-secondary btn-sm" id="btn-submit-utr-quick" style="flex: 1 1 130px; padding: 7px; font-size: 0.78rem;">
               Submit UTR Proof
             </button>
           </div>
@@ -128,14 +128,14 @@ export function renderCapitalLedger() {
       ` : ''}
 
       <!-- LEDGER FILTER TABS -->
-      <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;">
+      <div style="display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px; width: 100%; box-sizing: border-box;">
         <button class="filter-pill ${ledgerTypeFilter === 'ALL' ? 'active' : ''}" data-ledger-filter="ALL">All Entries</button>
         <button class="filter-pill ${ledgerTypeFilter === 'INFLOW' ? 'active' : ''}" data-ledger-filter="INFLOW">Inflows (Calls)</button>
         <button class="filter-pill ${ledgerTypeFilter === 'OUTFLOW' ? 'active' : ''}" data-ledger-filter="OUTFLOW">Outflows (Distributions)</button>
       </div>
 
-      <!-- TRANSACTION LEDGER TABLE / LIST -->
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <!-- TRANSACTION LEDGER TABLE / LIST (Responsive Flexbox) -->
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; box-sizing: border-box;">
         ${txs.length === 0 ? `
           <div class="card" style="text-align: center; padding: 30px; color: var(--text-muted);">
             No transactions found for the selected filter.
@@ -144,22 +144,22 @@ export function renderCapitalLedger() {
           const isInflow = tx.transactionType === 'CAPITAL_CONTRIBUTION';
           return `
             <div class="card" style="padding: 14px; border-left: 3px solid ${isInflow ? 'var(--accent-gold)' : 'var(--accent-emerald)'};">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 1 1 180px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span class="mono" style="font-size: 0.68rem; color: var(--text-muted);">${tx.transactionId}</span>
                     <span class="badge badge-${tx.status.toLowerCase()}" style="font-size: 0.62rem;">${tx.status}</span>
                     <span class="mono" style="font-size: 0.68rem; color: var(--accent-blue);">${tx.paymentMode}</span>
                   </div>
-                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary); margin-top: 4px;">
+                  <div style="font-weight: 700; font-size: 0.88rem; color: var(--text-primary); margin-top: 4px; word-break: break-word;">
                     ${tx.notes || tx.transactionType}
                   </div>
-                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
-                    ${formatDate(tx.paymentDate)} &bull; ${tx.partnerName} &bull; Ref: <span class="mono">${tx.utrReference}</span>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; word-break: break-word;">
+                    ${formatDate(tx.paymentDate)} &bull; ${tx.partnerName} &bull; Ref: <span class="mono" style="word-break: break-all;">${tx.utrReference}</span>
                   </div>
                 </div>
 
-                <div style="text-align: right; flex-shrink: 0;">
+                <div style="text-align: right; flex-shrink: 0; min-width: 90px;">
                   <div style="font-size: 1.15rem; font-weight: 800; color: ${isInflow ? 'var(--accent-gold)' : 'var(--accent-emerald)'}; font-family: 'Outfit', sans-serif;">
                     ${isInflow ? '+' : '-'}${formatINR(tx.amount)}
                   </div>

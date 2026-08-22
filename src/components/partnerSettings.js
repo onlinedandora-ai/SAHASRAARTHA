@@ -50,26 +50,26 @@ export function renderPartnerSettings() {
           <span class="badge badge-verified">KYC Verified</span>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); font-size: 0.76rem;">
-          <div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); font-size: 0.76rem; width: 100%;">
+          <div style="flex: 1 1 120px; min-width: 0;">
             <span style="color: var(--text-muted);">MCA DPIN / ID:</span>
-            <div class="mono" style="font-weight: 700; color: var(--accent-gold);">${user.dpin || '08923412'}</div>
+            <div class="mono" style="font-weight: 700; color: var(--accent-gold); word-break: break-word;">${user.dpin || '08923412'}</div>
           </div>
-          <div>
+          <div style="flex: 1 1 120px; min-width: 0;">
             <span style="color: var(--text-muted);">PAN Number:</span>
-            <div class="mono" style="font-weight: 700; color: var(--text-primary);">${user.pan || 'CZHPA9322F'}</div>
+            <div class="mono" style="font-weight: 700; color: var(--text-primary); word-break: break-word;">${user.pan || 'CZHPA9322F'}</div>
           </div>
-          <div>
+          <div style="flex: 1 1 120px; min-width: 0;">
             <span style="color: var(--text-muted);">Partner Role:</span>
-            <div style="font-weight: 700; color: var(--accent-emerald);">${user.role}</div>
+            <div style="font-weight: 700; color: var(--accent-emerald); word-break: break-word;">${user.role}</div>
           </div>
-          <div>
+          <div style="flex: 1 1 120px; min-width: 0;">
             <span style="color: var(--text-muted);">Ownership PSR %:</span>
-            <div style="font-weight: 700; color: var(--accent-blue);">${psrPct.toFixed(3)}%</div>
+            <div style="font-weight: 700; color: var(--accent-blue); word-break: break-word;">${psrPct.toFixed(3)}%</div>
           </div>
         </div>
 
-        <div style="margin-top: 10px; font-size: 0.74rem; color: var(--text-secondary);">
+        <div style="margin-top: 10px; font-size: 0.74rem; color: var(--text-secondary); word-break: break-word;">
           <span style="color: var(--text-muted);">Family Cluster:</span> <strong>${user.familyGroup || 'Ayinavolu Family'}</strong>
         </div>
       </div>
@@ -78,18 +78,18 @@ export function renderPartnerSettings() {
       <div class="card" style="margin-bottom: 14px; padding: 16px;">
         <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 10px;">Registered Communication Details</h4>
         
-        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.76rem;">
-          <div style="display: flex; justify-content: space-between;">
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.76rem; width: 100%;">
+          <div style="display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap;">
             <span style="color: var(--text-muted);">Registered Email:</span>
-            <strong style="color: var(--text-primary);">${user.email}</strong>
+            <strong style="color: var(--text-primary); word-break: break-word;">${user.email}</strong>
           </div>
-          <div style="display: flex; justify-content: space-between;">
+          <div style="display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap;">
             <span style="color: var(--text-muted);">Registered Mobile:</span>
-            <strong style="color: var(--text-primary);">${user.mobile}</strong>
+            <strong style="color: var(--text-primary); word-break: break-word;">${user.mobile}</strong>
           </div>
           <div style="margin-top: 4px;">
             <span style="color: var(--text-muted); display: block; margin-bottom: 2px;">Registered Address (MCA Deed):</span>
-            <p style="color: var(--text-secondary); line-height: 1.4; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 4px;">${user.address}</p>
+            <p style="color: var(--text-secondary); line-height: 1.4; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 4px; word-break: break-word;">${user.address}</p>
           </div>
         </div>
       </div>

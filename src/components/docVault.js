@@ -53,27 +53,27 @@ export function renderDocVault() {
       <div style="display: flex; flex-direction: column; gap: 10px;">
         ${docs.map(doc => {
           return `
-            <div class="card doc-item-card" data-doc-id="${doc.documentId}" style="cursor: pointer; padding: 14px; border-left: 3px solid ${getDocTypeColor(doc.docType)}; transition: transform 0.2s, border-color 0.2s;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <div class="card doc-item-card" data-doc-id="${doc.documentId}" style="cursor: pointer; padding: 14px; border-left: 3px solid ${getDocTypeColor(doc.docType)}; transition: transform 0.2s, border-color 0.2s; box-sizing: border-box; width: 100%;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: flex-start; gap: 10px; flex: 1 1 180px; min-width: 0;">
                   <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(245, 158, 11, 0.12); display: flex; align-items: center; justify-content: center; color: var(--accent-gold); flex-shrink: 0;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </div>
-                  <div>
+                  <div style="min-width: 0; flex: 1;">
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                       <span class="badge" style="background: rgba(255,255,255,0.06); font-size: 0.62rem; color: var(--accent-gold);">${doc.folder}</span>
                       <span class="badge badge-verified" style="font-size: 0.6rem;">${doc.docType}</span>
                       ${doc.isConfidential ? `<span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; font-size: 0.6rem;">Confidential</span>` : ''}
                     </div>
-                    <h3 style="font-size: 0.92rem; color: var(--text-primary); margin-top: 4px; font-weight: 700;">${doc.title}</h3>
-                    <p style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px;">${doc.description}</p>
-                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px;">
-                      Uploaded: ${formatDate(doc.uploadedAt)} &bull; File Size: ${doc.fileSizeKb} KB &bull; Format: PDF
+                    <h3 style="font-size: 0.92rem; color: var(--text-primary); margin-top: 4px; font-weight: 700; word-break: break-word;">${doc.title}</h3>
+                    <p style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 2px; word-break: break-word;">${doc.description}</p>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; word-break: break-word;">
+                      Uploaded: ${formatDate(doc.uploadedAt)} &bull; ${doc.fileSizeKb} KB &bull; PDF
                     </div>
                   </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; text-align: right;">
+                <div style="display: flex; flex-direction: row; gap: 6px; flex-shrink: 0; align-items: center;">
                   <button class="btn btn-primary btn-sm btn-preview-doc" data-doc-id="${doc.documentId}" style="padding: 4px 8px; font-size: 0.68rem;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     Preview

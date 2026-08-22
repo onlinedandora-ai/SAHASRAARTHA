@@ -42,30 +42,30 @@ export function renderAdminConsole() {
         </div>
       </div>
 
-      <!-- MASTER METRICS SUMMARY (4 Grid) -->
-      <div class="grid-2" style="gap: 8px; margin-bottom: 14px;">
-        <div class="card" style="padding: 12px;">
+      <!-- MASTER METRICS SUMMARY (Responsive Flexbox) -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; width: 100%; box-sizing: border-box;">
+        <div class="card" style="flex: 1 1 calc(50% - 4px); min-width: 130px; padding: 12px; box-sizing: border-box;">
           <span class="metric-label" style="font-size: 0.68rem;">LLP TOTAL AUM</span>
-          <div class="metric-value gold" style="font-size: 1.3rem;">${formatINR(calcs.totalGrossAssets, { compact: true })}</div>
-          <div style="font-size: 0.68rem; color: var(--text-muted);">Sum of 5 Reconciled Accounts</div>
+          <div class="metric-value gold" style="font-size: 1.25rem; word-break: break-word;">${formatINR(calcs.totalGrossAssets, { compact: true })}</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); word-break: break-word;">Sum of 5 Reconciled Accounts</div>
         </div>
 
-        <div class="card" style="padding: 12px;">
+        <div class="card" style="flex: 1 1 calc(50% - 4px); min-width: 130px; padding: 12px; box-sizing: border-box;">
           <span class="metric-label" style="font-size: 0.68rem;">LIVE UNIT NAV</span>
-          <div class="metric-value emerald mono" style="font-size: 1.3rem;">₹${calcs.navPerUnit.toFixed(2)}</div>
-          <div style="font-size: 0.68rem; color: var(--text-muted);">${formatUnits(calcs.totalOutstandingUnits)} Total Partner Units</div>
+          <div class="metric-value emerald mono" style="font-size: 1.25rem; word-break: break-word;">₹${calcs.navPerUnit.toFixed(2)}</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); word-break: break-word;">${formatUnits(calcs.totalOutstandingUnits)} Partner Units</div>
         </div>
 
-        <div class="card" style="padding: 12px;">
+        <div class="card" style="flex: 1 1 calc(50% - 4px); min-width: 130px; padding: 12px; box-sizing: border-box;">
           <span class="metric-label" style="font-size: 0.68rem;">PENDING UTR QUEUE</span>
-          <div class="metric-value ${pendingTxs.length > 0 ? 'gold' : ''} mono" style="font-size: 1.3rem;">${pendingTxs.length} Pending</div>
-          <div style="font-size: 0.68rem; color: var(--text-muted);">${pendingTxs.length > 0 ? 'Requires Verification' : 'All Clear'}</div>
+          <div class="metric-value ${pendingTxs.length > 0 ? 'gold' : ''} mono" style="font-size: 1.25rem; word-break: break-word;">${pendingTxs.length} Pending</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); word-break: break-word;">${pendingTxs.length > 0 ? 'Requires Verification' : 'All Clear'}</div>
         </div>
 
-        <div class="card" style="padding: 12px;">
+        <div class="card" style="flex: 1 1 calc(50% - 4px); min-width: 130px; padding: 12px; box-sizing: border-box;">
           <span class="metric-label" style="font-size: 0.68rem;">PROPOSALS DESK</span>
-          <div class="metric-value mono" style="font-size: 1.3rem;">${pendingProposals.length} New</div>
-          <div style="font-size: 0.68rem; color: var(--text-muted);">Partner Capital Invocations</div>
+          <div class="metric-value mono" style="font-size: 1.25rem; word-break: break-word;">${pendingProposals.length} New</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); word-break: break-word;">Partner Capital Invocations</div>
         </div>
       </div>
 

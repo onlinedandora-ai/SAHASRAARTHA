@@ -70,21 +70,21 @@ export function renderPortfolioAssets() {
           const partnerFractionalVal = Number(asset.currentValuation) * psr;
           return `
             <div class="card asset-card" data-asset-id="${asset.assetId}" style="cursor: pointer; padding: 16px; border-left: 4px solid ${getAssetColor(asset.assetClass)}; transition: transform 0.2s, border-color 0.2s;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 1 1 180px; min-width: 0;">
                   <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <span class="badge" style="background: rgba(255,255,255,0.06); font-size: 0.62rem; color: ${getAssetColor(asset.assetClass)}; font-weight: 700;">
                       ${formatAssetClass(asset.assetClass)}
                     </span>
                     <span class="mono" style="font-size: 0.7rem; color: var(--text-muted);">${asset.assetCode}</span>
                   </div>
-                  <h3 style="font-size: 1.05rem; color: var(--text-primary); margin-top: 4px;">${asset.assetName}</h3>
-                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
+                  <h3 style="font-size: 1.05rem; color: var(--text-primary); margin-top: 4px; word-break: break-word;">${asset.assetName}</h3>
+                  <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; word-break: break-word;">
                     ${asset.manager} &bull; ${asset.location}
                   </div>
                 </div>
 
-                <div style="text-align: right; flex-shrink: 0;">
+                <div style="text-align: right; flex-shrink: 0; min-width: 90px;">
                   <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); font-family: 'Outfit', sans-serif;">
                     ${formatINR(asset.currentValuation, { compact: true })}
                   </div>
@@ -94,20 +94,20 @@ export function renderPortfolioAssets() {
                 </div>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); font-size: 0.74rem;">
-                <div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); font-size: 0.74rem; width: 100%;">
+                <div style="flex: 1 1 120px; min-width: 0;">
                   <span style="color: var(--text-muted);">Purchase / Cost:</span>
-                  <strong style="color: var(--text-secondary); margin-left: 4px;">${formatINR(asset.totalInvestedAmount, { compact: true })}</strong>
+                  <strong style="color: var(--text-secondary); margin-left: 4px; word-break: break-word;">${formatINR(asset.totalInvestedAmount, { compact: true })}</strong>
                 </div>
-                <div>
+                <div style="flex: 1 1 120px; min-width: 0;">
                   <span style="color: var(--text-muted);">Your Stake (${(psr * 100).toFixed(2)}%):</span>
-                  <strong style="color: var(--accent-gold); margin-left: 4px;">${formatINR(partnerFractionalVal)}</strong>
+                  <strong style="color: var(--accent-gold); margin-left: 4px; word-break: break-word;">${formatINR(partnerFractionalVal)}</strong>
                 </div>
               </div>
 
-              <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--accent-blue);">
-                <span>Tap to view Asset Drill-Down & Valuation Graph &rarr;</span>
-                <span class="badge badge-verified" style="font-size: 0.6rem;">${asset.allocationPct}% AUM</span>
+              <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 0.72rem; color: var(--accent-blue);">
+                <span style="word-break: break-word;">Tap to view Asset Drill-Down &rarr;</span>
+                <span class="badge badge-verified" style="font-size: 0.6rem; flex-shrink: 0;">${asset.allocationPct}% AUM</span>
               </div>
             </div>
           `;

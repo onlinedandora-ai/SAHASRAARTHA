@@ -122,7 +122,7 @@
   --shadow-gold: 0 8px 30px rgba(212, 175, 55, 0.28);
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -137,6 +137,8 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 h1, h2, h3, h4, h5, h6, .brand-font {
