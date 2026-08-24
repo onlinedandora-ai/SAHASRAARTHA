@@ -20,8 +20,11 @@
         "profile",
         "email"
       ],
-      "serverClientId": "302063091598-5e9k6hl03ah79i7vluanl7muumtmgi9g.apps.googleusercontent.com",
+      "serverClientId": "1056041223530-rk07f2vb2vuc6g4b840g51talslo1p2j.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
     }
   }
 }

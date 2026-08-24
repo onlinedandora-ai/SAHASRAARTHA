@@ -14,6 +14,15 @@ import {
   LIQUIDITY_BREAKDOWN
 } from '../data/sfo_data.js';
 import { PARTNERS_DATA, INITIAL_CAPITAL_PROPOSALS } from '../data/partners_data.js';
+import {
+  syncSaveAsset,
+  syncSaveTransaction,
+  syncSaveCapitalCall,
+  syncSaveDistributionEvent,
+  syncSaveProposal,
+  syncSavePartner,
+  syncSaveLiquidity
+} from '../services/firestoreSync.js';
 
 class SFOStore {
   constructor() {
@@ -260,27 +269,33 @@ class SFOStore {
       details: `Registered ${partnerId} (${fullName}) as ${finalRole} with ₹${committedCapital} commitment.`
     });
 
+    this.saveState();
     this.notify();
+    syncSavePartner(newPartner);
     return newPartner;
   }
 
   setTheme(theme) {
     this.theme = theme;
+    this.saveState();
     this.notify();
   }
 
   setActiveTab(tab) {
     this.activeTab = tab;
+    this.saveState();
     this.notify();
   }
 
   setFiscalYear(fy) {
     this.selectedFiscalYear = fy;
+    this.saveState();
     this.notify();
   }
 
   toggleBiometrics() {
     this.biometricsEnabled = !this.biometricsEnabled;
+    this.saveState();
     this.notify();
   }
 
@@ -302,6 +317,7 @@ class SFOStore {
     if (!partner) return { error: "Partner not found" };
 
     const newTx = {
+      id: `TX-2026-${String(Math.floor(1000 + Math.random() * 9000))}`,
       transactionId: `TX-2026-${String(Math.floor(1000 + Math.random() * 9000))}`,
       partnerId: partner.partnerId,
       partnerName: partner.fullName,
@@ -325,7 +341,9 @@ class SFOStore {
       details: `${partner.partnerId} submitted ${paymentMode} payment ref: ${utrReference} for ₹${amount}`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveTransaction(newTx);
     return { success: true, transaction: newTx };
   }
 
@@ -366,7 +384,11 @@ class SFOStore {
       details: `Verified ${tx.transactionId} for ₹${tx.amount} (${partner?.fullName}). Credited ${newUnits.toFixed(4)} units.`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveTransaction(tx);
+    if (partner) syncSavePartner(partner);
+    syncSaveLiquidity({ bankBalance: this.bankBalance, brokerCash: this.brokerCash, accruedLiabilities: this.accruedLiabilities });
     return { success: true };
   }
 
@@ -385,13 +407,16 @@ class SFOStore {
       details: `Rejected ${tx.transactionId} (${tx.partnerName}) - ${reason}`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveTransaction(tx);
     return { success: true };
   }
 
   // --- Admin Capital Call Generator ---
   issueCapitalCall({ callNumber, totalCallAmount, purpose, dueDate }) {
     const newCall = {
+      id: `CC-2026-${String(Math.floor(10 + Math.random() * 90))}`,
       callId: `CC-2026-${String(Math.floor(10 + Math.random() * 90))}`,
       callNumber: callNumber || `Capital Call #${this.capitalCalls.length + 1}/2026-27`,
       totalCallAmount: Number(totalCallAmount),
@@ -412,7 +437,9 @@ class SFOStore {
       details: `Issued ${newCall.callNumber} for ₹${newCall.totalCallAmount} across all 28 partners.`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveCapitalCall(newCall);
     return { success: true, call: newCall };
   }
 
@@ -425,6 +452,7 @@ class SFOStore {
 
     const eventId = `DIST-2026-${String(Math.floor(100 + Math.random() * 900))}`;
     const newEvent = {
+      id: eventId,
       eventId,
       title: title || `SFO Profit Distribution Run`,
       distributionDate: new Date().toISOString().split('T')[0],
@@ -460,7 +488,8 @@ class SFOStore {
     this.distributionEvents.unshift(newEvent);
 
     // Record In Ledger
-    this.capitalTransactions.unshift({
+    const distTx = {
+      id: `TX-DIST-${Date.now().toString().slice(-6)}`,
       transactionId: `TX-DIST-${Date.now().toString().slice(-6)}`,
       partnerId: "FUND_WIDE",
       partnerName: "All 28 Partners",
@@ -473,7 +502,8 @@ class SFOStore {
       status: "VERIFIED",
       receiptUrl: `payout_advice_${newEvent.eventId}.pdf`,
       notes: `${newEvent.title} (Net ₹${totalNet.toLocaleString('en-IN')} + TDS ₹${totalTds.toLocaleString('en-IN')})`
-    });
+    };
+    this.capitalTransactions.unshift(distTx);
 
     this.auditLog.unshift({
       id: `LOG-${Date.now()}`,
@@ -483,18 +513,22 @@ class SFOStore {
       details: `Executed ${title} for ₹${total} (Auto 10% TDS ₹${totalTds} deducted). Credited all 28 partners.`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveDistributionEvent(newEvent);
+    syncSaveTransaction(distTx);
     return { success: true, event: newEvent, entries: partnerEntries };
   }
 
   // --- Admin Asset Revaluation Engine ---
   revalueAsset(assetId, newValuation, note = "Periodic NAV Revaluation") {
-    const asset = this.portfolioAssets.find(a => a.assetId === assetId);
+    const asset = this.portfolioAssets.find(a => a.assetId === assetId || a.id === assetId);
     if (!asset) return { error: "Asset not found" };
 
-    const oldVal = Number(asset.currentValuation);
+    const oldVal = Number(asset.currentValuation || asset.currentValue || 0);
     const newVal = Number(newValuation);
     asset.currentValuation = newVal;
+    asset.currentValue = newVal;
 
     if (asset.historicalRevaluations) {
       asset.historicalRevaluations.push({
@@ -510,10 +544,12 @@ class SFOStore {
       timestamp: new Date().toISOString(),
       action: "Asset Revalued",
       actor: this.currentUser.fullName,
-      details: `Revalued ${asset.assetName} from ₹${oldVal.toLocaleString('en-IN')} to ₹${newVal.toLocaleString('en-IN')}`
+      details: `Revalued ${asset.assetName || asset.name} from ₹${oldVal.toLocaleString('en-IN')} to ₹${newVal.toLocaleString('en-IN')}`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveAsset(asset);
     return { success: true };
   }
 
@@ -573,7 +609,9 @@ class SFOStore {
       details: `Voted ${vote.toUpperCase()} on ${deal.title}`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveProposal(deal);
     return { success: true };
   }
 
@@ -599,7 +637,9 @@ class SFOStore {
       details: `Requested bank account change to ${bankName} (***${accountNumber.slice(-4)})`
     });
 
+    this.saveState();
     this.notify();
+    syncSavePartner(partner);
     return { success: true };
   }
 
@@ -612,6 +652,7 @@ class SFOStore {
     const estUnits = Number(proposedAmount) / navPerUnit;
 
     const newProposal = {
+      id: `PROP-2026-${String(Math.floor(100 + Math.random() * 900))}`,
       proposalId: `PROP-2026-${String(Math.floor(100 + Math.random() * 900))}`,
       partnerId: partner.partnerId,
       partnerName: partner.fullName,
@@ -632,12 +673,14 @@ class SFOStore {
       details: `Submitted proposal for ₹${proposedAmount}`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveProposal(newProposal);
     return { success: true, proposal: newProposal };
   }
 
   approveProposal(proposalId, adjustedAmount = null) {
-    const proposal = this.proposals.find(p => p.proposalId === proposalId);
+    const proposal = this.proposals.find(p => p.proposalId === proposalId || p.id === proposalId);
     if (!proposal) return { error: "Proposal not found" };
 
     const finalAmount = adjustedAmount !== null ? Number(adjustedAmount) : proposal.proposedAmount;
@@ -674,12 +717,16 @@ class SFOStore {
       details: `Approved proposal ${proposalId} for ₹${finalAmount}. Allotted ${allottedUnits.toFixed(4)} units to ${proposal.partnerName}`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveProposal(proposal);
+    if (partner) syncSavePartner(partner);
+    syncSaveLiquidity({ bankBalance: this.bankBalance, brokerCash: this.brokerCash, accruedLiabilities: this.accruedLiabilities });
     return { success: true };
   }
 
   rejectProposal(proposalId, reason) {
-    const proposal = this.proposals.find(p => p.proposalId === proposalId);
+    const proposal = this.proposals.find(p => p.proposalId === proposalId || p.id === proposalId);
     if (!proposal) return { error: "Proposal not found" };
 
     proposal.status = "REJECTED";
@@ -694,7 +741,9 @@ class SFOStore {
       details: `Rejected proposal ${proposalId} (${proposal.partnerName})`
     });
 
+    this.saveState();
     this.notify();
+    syncSaveProposal(proposal);
     return { success: true };
   }
 }

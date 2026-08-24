@@ -23,17 +23,22 @@ import { renderStatementModal, attachStatementEvents } from './components/statem
 import { renderAndroidLogin, attachAndroidLoginEvents } from './android/login/androidLogin.js';
 import { renderIOSLogin, attachIOSLoginEvents } from './ios/login/iosLogin.js';
 
-// Firebase Authentication
+// Firebase Authentication, Firestore Real-Time Sync & Notifications
 import { initFirebase, checkRedirectResult, onAuthChanged, signOut as firebaseSignOut } from './services/firebaseAuth.js';
+import { initFirestoreSync } from './services/firestoreSync.js';
+import { initNotificationService } from './services/notificationService.js';
+import { openDownloadModal } from './components/downloadModal.js';
 
 // Detect platform or default
 const isAndroid = /Android/i.test(navigator.userAgent);
 let isAuthenticated = false; // Start directly on clean reference login screen
 
-// ─── Initialize Firebase Auth on Boot ──────────────────────────────────────
+// ─── Initialize Firebase, Firestore Live Sync & Notifications ──────────────
 try {
   initFirebase();
   console.log('[App] Firebase initialized');
+  initFirestoreSync(store);
+  initNotificationService();
 } catch (err) {
   console.error('[App] Firebase init failed:', err);
 }
@@ -107,6 +112,13 @@ function renderApp() {
               </div>
 
               <div class="mobile-header-actions">
+                <button class="mobile-header-btn" id="btn-download-app-header" title="Download Mobile App (APK)" style="color: var(--accent-gold); border-color: rgba(212,175,55,0.4);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                </button>
                 <button class="mobile-header-btn" id="btn-toggle-theme" title="${store.theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}">
                   ${store.theme === 'dark' ? `
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -235,6 +247,11 @@ function attachGlobalEvents() {
         modal.innerHTML = renderStatementModal({ isOpen: true });
         attachStatementEvents();
       }
+    });
+
+    // Download App button
+    document.getElementById('btn-download-app-header')?.addEventListener('click', () => {
+      openDownloadModal();
     });
 
     // Profile icon button

@@ -27,38 +27,56 @@ import {
   signOut as firebaseSignOut
 } from 'firebase/auth';
 
+import { getFirestore } from 'firebase/firestore';
+
 // ─── Firebase Configuration ─────────────────────────────────────────────────
-// From google-services.json (sahasraartha-bfc96 project)
-const firebaseConfig = {
-  apiKey: 'AIzaSyAP1OLs48_MjHLM0sCPdxaocmux5tRuM4k',
-  authDomain: 'sahasraartha-bfc96.firebaseapp.com',
-  projectId: 'sahasraartha-bfc96',
-  storageBucket: 'sahasraartha-bfc96.firebasestorage.app',
-  messagingSenderId: '1067283773041',
-  appId: '1:1067283773041:android:2fd77e8df1e3ea63e80dd0'
+// From saharaartha-f867c project (onlinedandora@gmail.com)
+export const firebaseConfig = {
+  apiKey: 'AIzaSyDVyi2wbhtgPeXmK7yLewLfnk1YqVt4dGA',
+  authDomain: 'saharaartha-f867c.firebaseapp.com',
+  projectId: 'saharaartha-f867c',
+  storageBucket: 'saharaartha-f867c.firebasestorage.app',
+  messagingSenderId: '1056041223530',
+  appId: '1:1056041223530:android:64e416d930622bf37cd113'
 };
 
 // ─── Module State ────────────────────────────────────────────────────────────
 let app = null;
 let auth = null;
+let db = null;
 let recaptchaVerifier = null;
 let confirmationResult = null; // Holds the OTP confirmation object
 let pendingEmailOTP = null; // Holds { email, code, expiresAt }
 
 // ─── Initialize Firebase ─────────────────────────────────────────────────────
 export function initFirebase() {
-  if (app) return auth;
+  if (app) return { auth, db, app };
   try {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
+    db = getFirestore(app);
     // Use browser default language for OTP SMS
     auth.useDeviceLanguage();
     console.log('[FirebaseAuth] Initialized successfully — project:', firebaseConfig.projectId);
-    return auth;
+    return { auth, db, app };
   } catch (err) {
     console.error('[FirebaseAuth] Initialization failed:', err);
     throw err;
   }
+}
+
+export function getDb() {
+  if (!db) {
+    initFirebase();
+  }
+  return db;
+}
+
+export function getFirebaseApp() {
+  if (!app) {
+    initFirebase();
+  }
+  return app;
 }
 
 import { Capacitor } from '@capacitor/core';

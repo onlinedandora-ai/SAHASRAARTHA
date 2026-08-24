@@ -8,6 +8,7 @@
  */
 
 import { store } from '../state/store.js';
+import { openDownloadModal } from './downloadModal.js';
 
 export function renderPartnerSettings() {
   const user = store.currentUser;
@@ -155,6 +156,32 @@ export function renderPartnerSettings() {
         </div>
       </div>
 
+      <!-- MOBILE APP & LIVE CLOUD SYNC CARD -->
+      <div class="card highlight-gold" style="margin-bottom: 14px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div>
+            <span class="metric-label" style="color: var(--accent-gold); font-size: 0.68rem;">MOBILE DEPLOYMENT & NOTIFICATIONS</span>
+            <h4 style="font-size: 0.95rem; color: #ffffff; margin-top: 2px;">Native Mobile App & Cloud Sync</h4>
+          </div>
+          <span class="badge badge-active" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); font-size: 10px;">
+            ● Live Connected
+          </span>
+        </div>
+        
+        <p style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 12px;">
+          Cloud Firestore backend streams real-time portfolio NAV, ledger transactions, and push notifications for every valuation update.
+        </p>
+
+        <button id="btn-settings-download-apk" class="btn btn-primary btn-sm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.78rem; padding: 10px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download Android App (.APK) & QR Scanner
+        </button>
+      </div>
+
       <!-- DEDICATED SIGN OUT / LOGOUT ACTION -->
       <div class="card" style="margin-bottom: 14px; padding: 14px 16px; border: 1.5px solid rgba(239, 68, 68, 0.25); background: rgba(239, 68, 68, 0.04);">
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
@@ -175,6 +202,7 @@ export function renderPartnerSettings() {
       <!-- APP VERSION & GOVERNANCE INFO -->
       <div style="text-align: center; font-size: 0.7rem; color: var(--text-muted); padding: 10px;">
         <div>Sahasraartha Family Office LLP &bull; v1.0.0 Production</div>
+        <div>Firestore Project: saharaartha-f867c &bull; Realtime FCM Active</div>
         <div>Statutory Auditor: Murahari & Associates &bull; MCA India</div>
       </div>
 
@@ -241,6 +269,11 @@ function renderBankUpdateModal(user) {
 }
 
 export function attachPartnerSettingsEvents() {
+  // Download APK modal button
+  document.getElementById('btn-settings-download-apk')?.addEventListener('click', () => {
+    openDownloadModal();
+  });
+
   // Biometrics toggle
   const bioToggle = document.getElementById('toggle-biometrics');
   if (bioToggle) {
