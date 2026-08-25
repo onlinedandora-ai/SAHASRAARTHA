@@ -48,26 +48,21 @@ checkRedirectResult().then(result => {
   if (result && result.profile) {
     console.log('[App] Redirect sign-in result:', result.profile.email);
     store.setFirebaseUser(result.profile);
-    // Auto-match to partner
     const email = result.profile.email;
     const phone = result.profile.phoneNumber;
     const matched = store.partners.find(p =>
-      (email && p.email.toLowerCase() === email.toLowerCase()) ||
+      (email && (p.email.toLowerCase() === email.toLowerCase() || (email.toLowerCase() === 'sahasraarthasfo@gmail.com' && p.partnerId === 'SH-SA-001'))) ||
       (phone && p.mobile && p.mobile.replace(/\D/g, '').slice(-10) === phone.replace(/\D/g, '').slice(-10))
     );
     if (matched) {
       store.setCurrentUser(matched.partnerId);
-    } else if (email) {
-      store.registerPartner({
-        fullName: result.profile.displayName || email.split('@')[0].toUpperCase(),
-        email: email,
-        mobile: phone || '',
-        role: 'PARTNER',
-        committedCapital: 500000
-      });
+      isAuthenticated = true;
+      renderApp();
+    } else {
+      alert(`Access Denied: The email "${email || phone}" is not registered as an authorized account holder of Sahasraartha Family Office LLP. Only official partners are permitted.`);
+      isAuthenticated = false;
+      renderApp();
     }
-    isAuthenticated = true;
-    renderApp();
   }
 }).catch(() => { /* ignore */ });
 

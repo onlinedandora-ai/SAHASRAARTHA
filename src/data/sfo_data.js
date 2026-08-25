@@ -53,6 +53,212 @@ export const HEADLINE_POSITION = {
   }
 };
 
+/**
+ * Full 18-Securities Holdings Master Table as of 13-August-2026
+ * Directly extracted from SFO_Accounts.xlsx "Holdings" tab:
+ * Quantities independently verified; 31-Mar-2026 holdings rolled forward through all FY2026-27 trades tie exactly to the Held Away Report
+ */
+export const HOLDINGS_AS_AT_13_AUG_2026 = [
+  {
+    security: "REVX Capital Trust Fund II Class E1",
+    category: "AIF (Venture Debt)",
+    qty: 99410,
+    cost: 9941000,
+    market: 9941000,
+    unrealised: 0,
+    returnPct: 0.00,
+    portfolioPct: 67.39,
+    notes: "Distributing class at par; generated ₹11.98L cash distributions."
+  },
+  {
+    security: "Artha Fund IV Class S (at capital account)",
+    category: "AIF (Venture Capital)",
+    qty: 20000,
+    cost: 2000000,
+    market: 1715956,
+    unrealised: -284044,
+    returnPct: -14.20,
+    portfolioPct: 11.63,
+    notes: "Per manager statement 30-Jun-2026 (closing balance ₹17,15,956)."
+  },
+  {
+    security: "Nippon Gold BeES ETF",
+    category: "Commodity ETF",
+    qty: 2752,
+    cost: 237033,
+    market: 345789,
+    unrealised: 108756,
+    returnPct: 45.88,
+    portfolioPct: 2.34,
+    notes: "Gold rally hedge; +45.88% unrealised gain."
+  },
+  {
+    security: "Nippon Nifty 50 BeES ETF",
+    category: "Index ETF",
+    qty: 1153,
+    cost: 329447,
+    market: 320718,
+    unrealised: -8729,
+    returnPct: -2.65,
+    portfolioPct: 2.17,
+    notes: "Broad market index core."
+  },
+  {
+    security: "Edelweiss Nifty500 Multicap Momentum Q50 ETF",
+    category: "Smart-Beta ETF",
+    qty: 20600,
+    cost: 800928,
+    market: 862110,
+    unrealised: 61182,
+    returnPct: 7.64,
+    portfolioPct: 5.84,
+    notes: "Momentum factor multicap strategy."
+  },
+  {
+    security: "ABSL Nifty IT ETF",
+    category: "Sectoral ETF",
+    qty: 12434,
+    cost: 402862,
+    market: 428600,
+    unrealised: 25738,
+    returnPct: 6.39,
+    portfolioPct: 2.91,
+    notes: "Technology sector thematic ETF."
+  },
+  {
+    security: "Nippon Nifty Next 50 Junior BeES ETF",
+    category: "Index ETF",
+    qty: 2,
+    cost: 1509,
+    market: 1614,
+    unrealised: 105,
+    returnPct: 6.96,
+    portfolioPct: 0.01,
+    notes: "Next 50 Junior index."
+  },
+  {
+    security: "Zerodha Gold ETF",
+    category: "Commodity ETF",
+    qty: 96,
+    cost: 2267,
+    market: 2297,
+    unrealised: 30,
+    returnPct: 1.32,
+    portfolioPct: 0.02,
+    notes: "Gold physical ETF."
+  },
+  {
+    security: "Zerodha NIFTY 1D Rate Liquid ETF",
+    category: "Liquid ETF",
+    qty: 9,
+    cost: 1007,
+    market: 1039,
+    unrealised: 32,
+    returnPct: 3.18,
+    portfolioPct: 0.01,
+    notes: "Overnight liquidity management."
+  },
+  {
+    security: "Pricol",
+    category: "Listed Equity",
+    qty: 198,
+    cost: 122841,
+    market: 151470,
+    unrealised: 28629,
+    returnPct: 23.31,
+    portfolioPct: 1.03,
+    notes: "Auto Ancillary & instruments."
+  },
+  {
+    security: "Finolex Cables",
+    category: "Listed Equity",
+    qty: 118,
+    cost: 122139,
+    market: 147683,
+    unrealised: 25544,
+    returnPct: 20.91,
+    portfolioPct: 1.00,
+    notes: "Electrical & telecom cables."
+  },
+  {
+    security: "Kalpataru Projects International",
+    category: "Listed Equity",
+    qty: 95,
+    cost: 109539,
+    market: 128697,
+    unrealised: 19158,
+    returnPct: 17.49,
+    portfolioPct: 0.87,
+    notes: "Power transmission & EPC."
+  },
+  {
+    security: "Glenmark Pharma",
+    category: "Listed Equity",
+    qty: 55,
+    cost: 123382,
+    market: 127600,
+    unrealised: 4218,
+    returnPct: 3.42,
+    portfolioPct: 0.87,
+    notes: "Specialty generics & respiratory."
+  },
+  {
+    security: "NMDC",
+    category: "Listed Equity",
+    qty: 1456,
+    cost: 122245,
+    market: 123760,
+    unrealised: 1515,
+    returnPct: 1.24,
+    portfolioPct: 0.84,
+    notes: "Iron ore miner & dividend payer."
+  },
+  {
+    security: "Great Eastern Shipping",
+    category: "Listed Equity",
+    qty: 90,
+    cost: 121941,
+    market: 117783,
+    unrealised: -4158,
+    returnPct: -3.41,
+    portfolioPct: 0.80,
+    notes: "Seaborne bulk & crude transportation."
+  },
+  {
+    security: "Strides Pharma Science",
+    category: "Listed Equity",
+    qty: 119,
+    cost: 122516,
+    market: 117215,
+    unrealised: -5301,
+    returnPct: -4.33,
+    portfolioPct: 0.79,
+    notes: "Pharma formulations & softgels."
+  },
+  {
+    security: "Lupin",
+    category: "Listed Equity",
+    qty: 50,
+    cost: 117905,
+    market: 112515,
+    unrealised: -5390,
+    returnPct: -4.57,
+    portfolioPct: 0.76,
+    notes: "Global formulations & biosimilars."
+  },
+  {
+    security: "Waaree Energies",
+    category: "Listed Equity",
+    qty: 39,
+    cost: 110236,
+    market: 104793,
+    unrealised: -5443,
+    returnPct: -4.94,
+    portfolioPct: 0.71,
+    notes: "Solar PV module leader."
+  }
+];
+
 export const PORTFOLIO_ASSETS = [
   {
     assetId: "AST-REVX-01",

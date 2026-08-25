@@ -43,6 +43,10 @@ function findPartnerByIdentifier(identifier) {
   const lower = raw.toLowerCase();
   const digits = normalizeMobile(raw);
 
+  if (lower === 'sahasraarthasfo@gmail.com') {
+    return store.partners.find(p => p.partnerId === 'SH-SA-001') || store.partners[0];
+  }
+
   return store.partners.find(p => {
     const pDigits = normalizeMobile(p.mobile);
     return (
@@ -96,6 +100,10 @@ export function renderAndroidLogin() {
       <div class="auth-brand-wrapper" style="margin-top: 6px; margin-bottom: 2px;">
         ${renderSFOLogo({ width: 170 })}
         <p class="auth-subtitle" style="margin-top: 12px;">Your Personal Family Office &amp; Wealth Portfolio Manager</p>
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(234, 88, 12, 0.08); border: 1px solid rgba(234, 88, 12, 0.25); padding: 4px 10px; border-radius: 20px; margin-top: 8px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span style="font-size: 0.68rem; font-weight: 700; color: #ea580c; text-transform: uppercase; letter-spacing: 0.03em;">Authorized Account Holders Only</span>
+        </div>
       </div>
 
       <!-- Action Button Stack -->
@@ -150,14 +158,14 @@ export function renderAndroidLogin() {
       <!-- Footer Section -->
       <div class="auth-footer">
         <div class="auth-footer-prompt">
-          Don't have an account? <span class="auth-footer-link" id="btn-open-persona-sheet">Sign Up</span>
+          Official Partner? <span class="auth-footer-link" id="btn-open-persona-sheet">Partner Account Directory</span>
         </div>
         <div class="auth-footer-legal">
           <span>Terms and Cookies</span> &bull; <span>Privacy Policy</span>
         </div>
       </div>
 
-      <!-- Clean Modal Sheet for Phone/Email/OTP/Google Fallback/Persona/Sign Up -->
+      <!-- Clean Modal Sheet for Phone/Email/OTP/Google Fallback/Partner Whitelist Directory -->
       ${activeAuthMode ? `
         <div class="auth-sheet-backdrop" id="auth-sheet-backdrop">
           <div class="auth-sheet-dialog" id="auth-sheet-dialog">
@@ -169,15 +177,14 @@ export function renderAndroidLogin() {
                     activeAuthMode === 'email' ? 'Email Address Login' :
                     activeAuthMode === 'google_fallback' ? 'Sign in with Google' :
                     activeAuthMode === 'otp' ? 'Enter 6-Digit OTP' :
-                    activeSheetTab === 'signup' ? 'Partner Registration' :
-                    'Choose Partner Account'}
+                    'Authorized Partner Accounts'}
                 </h3>
                 <p style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
-                  ${activeAuthMode === 'google_fallback' ? 'Enter your Google email to sign in' :
-                    activeAuthMode === 'phone' ? 'Enter registered mobile number' :
-                    activeAuthMode === 'email' ? 'Enter registered email address' :
+                  ${activeAuthMode === 'google_fallback' ? 'Select or enter registered Google email' :
+                    activeAuthMode === 'phone' ? 'Enter registered account holder mobile' :
+                    activeAuthMode === 'email' ? 'Enter registered account holder email' :
                     activeAuthMode === 'otp' ? 'Instant verification with 6-digit code' :
-                    'Complete details to register as a partner'}
+                    'Official Sahasraartha LLP 28-Partner Whitelist'}
                 </p>
               </div>
               <button class="modal-close" id="btn-close-auth-sheet" style="background: #f1f5f9; border: none; color: #64748b; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">&times;</button>
@@ -193,7 +200,7 @@ export function renderAndroidLogin() {
                   <div style="padding: 12px 14px; background: #f1f5f9; border: 1.5px solid #ede4da; border-radius: 12px; font-size: 0.9rem; font-weight: 700; color: #1e293b;">
                     +91
                   </div>
-                  <input type="tel" id="auth-phone-input" class="m3-input" placeholder="Enter 10-digit mobile number" value="${enteredIdentifier || ''}" style="flex: 1; padding: 12px 14px; background: #f8f4ee; border: 1.5px solid #ede4da; border-radius: 12px; color: #1e293b; font-size: 0.95rem; outline: none; box-sizing: border-box;">
+                  <input type="tel" id="auth-phone-input" class="m3-input" placeholder="Enter 10-digit registered mobile" value="${enteredIdentifier || ''}" style="flex: 1; padding: 12px 14px; background: #f8f4ee; border: 1.5px solid #ede4da; border-radius: 12px; color: #1e293b; font-size: 0.95rem; outline: none; box-sizing: border-box;">
                 </div>
               </div>
 
@@ -204,13 +211,13 @@ export function renderAndroidLogin() {
               <!-- Email Address Login -->
               <div class="form-group" style="margin-bottom: 16px;">
                 <label style="font-size: 0.74rem; color: #64748b; display: block; margin-bottom: 6px; text-transform: uppercase; font-weight: 700;">
-                  Registered Email Address
+                  Registered Partner Email Address
                 </label>
                 <div style="display: flex; gap: 8px;">
-                  <input type="email" id="auth-email-input" class="m3-input" placeholder="name@sahasraartha.in" value="${enteredIdentifier || ''}" style="width: 100%; padding: 12px 14px; background: #f8f4ee; border: 1.5px solid #ede4da; border-radius: 12px; color: #1e293b; font-size: 0.95rem; outline: none; box-sizing: border-box;">
+                  <input type="email" id="auth-email-input" class="m3-input" placeholder="e.g. srikanth@sahasraartha.in" value="${enteredIdentifier || ''}" style="width: 100%; padding: 12px 14px; background: #f8f4ee; border: 1.5px solid #ede4da; border-radius: 12px; color: #1e293b; font-size: 0.95rem; outline: none; box-sizing: border-box;">
                 </div>
                 <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 6px;">
-                  An instant 6-digit authentication code will be sent to your email inbox.
+                  An instant 6-digit authentication code will be sent to your registered email inbox.
                 </div>
               </div>
 
@@ -309,111 +316,53 @@ export function renderAndroidLogin() {
 
               <div style="text-align: center; margin-top: 14px;">
                 <button id="btn-resend-auth-otp" style="background: none; border: none; color: #ea580c; font-size: 0.78rem; font-weight: 700; cursor: pointer; text-decoration: underline;">
-                  Didn't receive code? Resend OTP
-                </button>
-              </div>
-            ` : `
-              <!-- Partner Account Selection & Sign Up Tabs -->
-              <div class="auth-sheet-tabs" style="display: flex; gap: 8px; margin-bottom: 12px; background: #f1f5f9; padding: 4px; border-radius: 10px;">
-                <button id="tab-btn-select-partner" class="auth-tab-btn ${activeSheetTab === 'select' ? 'active' : ''}" style="flex: 1; padding: 8px 10px; font-size: 0.78rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; background: ${activeSheetTab === 'select' ? '#ffffff' : 'transparent'}; color: ${activeSheetTab === 'select' ? '#ea580c' : '#64748b'}; box-shadow: ${activeSheetTab === 'select' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'};">
-                  Select Role & Account
-                </button>
-                <button id="tab-btn-signup-partner" class="auth-tab-btn ${activeSheetTab === 'signup' ? 'active' : ''}" style="flex: 1; padding: 8px 10px; font-size: 0.78rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; background: ${activeSheetTab === 'signup' ? '#ffffff' : 'transparent'}; color: ${activeSheetTab === 'signup' ? '#ea580c' : '#64748b'}; box-shadow: ${activeSheetTab === 'signup' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'};">
-                  + New Sign Up
-                </button>
-              </div>
+                  Didn't receive             ` : `
+              <!-- Partner Account Selection Directory -->
+              <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <input type="text" id="partner-search-input" placeholder="Search partner name, ID, email or mobile..." value="${searchQuery}" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 10px; border: 1.5px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
 
-              ${activeSheetTab === 'select' ? `
-                <!-- Filter Chips & Search Box -->
-                <div style="margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px;">
-                  <input type="text" id="partner-search-input" placeholder="Search partner name, ID or mobile..." value="${searchQuery}" style="width: 100%; padding: 8px 12px; font-size: 0.82rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
-
-                  <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
-                    <button class="role-chip ${selectedRoleFilter === 'ALL' ? 'active' : ''}" data-filter="ALL" style="padding: 4px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'ALL' ? '#ea580c' : '#ede4da'}; background: ${selectedRoleFilter === 'ALL' ? '#fff7ed' : '#ffffff'}; color: ${selectedRoleFilter === 'ALL' ? '#ea580c' : '#64748b'}; cursor: pointer; white-space: nowrap;">
-                      All (${store.partners.length})
-                    </button>
-                    <button class="role-chip ${selectedRoleFilter === 'ADMIN' ? 'active' : ''}" data-filter="ADMIN" style="padding: 4px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'ADMIN' ? '#ea580c' : '#ede4da'}; background: ${selectedRoleFilter === 'ADMIN' ? '#fff7ed' : '#ffffff'}; color: ${selectedRoleFilter === 'ADMIN' ? '#ea580c' : '#64748b'}; cursor: pointer; white-space: nowrap;">
-                      Managing Partner (${superAdmins.length})
-                    </button>
-                    <button class="role-chip ${selectedRoleFilter === 'DESIGNATED' ? 'active' : ''}" data-filter="DESIGNATED" style="padding: 4px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'DESIGNATED' ? '#2563eb' : '#ede4da'}; background: ${selectedRoleFilter === 'DESIGNATED' ? '#eff6ff' : '#ffffff'}; color: ${selectedRoleFilter === 'DESIGNATED' ? '#2563eb' : '#64748b'}; cursor: pointer; white-space: nowrap;">
-                      Designated (${committeeMembers.length})
-                    </button>
-                    <button class="role-chip ${selectedRoleFilter === 'LP' ? 'active' : ''}" data-filter="LP" style="padding: 4px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'LP' ? '#10b981' : '#ede4da'}; background: ${selectedRoleFilter === 'LP' ? '#ecfdf5' : '#ffffff'}; color: ${selectedRoleFilter === 'LP' ? '#10b981' : '#64748b'}; cursor: pointer; white-space: nowrap;">
-                      Individual LP (${lps.length})
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Direct Partner Whitelist Switcher List -->
-                <div style="display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; padding-right: 4px;" id="sheet-partners-list">
-                  ${filteredPartners.length === 0 ? `
-                    <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 0.82rem;">
-                      No partners found matching "${searchQuery}"
-                    </div>
-                  ` : filteredPartners.map(p => {
-                    const isSA = superAdmins.some(a => a.partnerId === p.partnerId);
-                    const isDP = committeeMembers.some(c => c.partnerId === p.partnerId);
-                    const roleLabel = isSA ? 'Managing Partner' : isDP ? 'Designated Partner' : 'Individual LP';
-                    const roleColor = isSA ? '#ea580c' : isDP ? '#2563eb' : '#10b981';
-                    const roleBg = isSA ? '#fff7ed' : isDP ? '#eff6ff' : '#ecfdf5';
-
-                    return `
-                      <button class="btn btn-secondary btn-sm sheet-partner-btn" data-id="${p.partnerId}" style="display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 10px 12px; border-radius: 12px; background: #ffffff; border: 1px solid #ede4da; cursor: pointer; width: 100%; transition: all 0.15s ease;">
-                        <div style="overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
-                          <div style="font-weight: 700; color: #1e293b; font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.fullName}</div>
-                          <div style="font-size: 0.68rem; color: #64748b; font-family: monospace;">${p.partnerId} • ${p.mobile}</div>
-                        </div>
-                        <span style="font-size: 0.65rem; font-weight: 700; color: ${roleColor}; background: ${roleBg}; padding: 3px 8px; border-radius: 6px; white-space: nowrap;">
-                          ${roleLabel}
-                        </span>
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-              ` : `
-                <!-- New Partner Registration Form -->
-                <div style="display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; padding-right: 4px;" id="sheet-signup-form">
-                  <div>
-                    <label style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Full Legal Name</label>
-                    <input type="text" id="signup-fullname" placeholder="e.g. Ramesh Kumar Ayinavolu" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
-                  </div>
-
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div>
-                      <label style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Email Address</label>
-                      <input type="email" id="signup-email" placeholder="ramesh@sahasraartha.in" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
-                    </div>
-                    <div>
-                      <label style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Mobile Number</label>
-                      <input type="tel" id="signup-mobile" placeholder="+91 98450 12345" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Partner Role</label>
-                    <select id="signup-role" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box; color: #1e293b;">
-                      <option value="LP">Individual LP Partner (Limited Partner)</option>
-                      <option value="DESIGNATED_PARTNER">Designated Partner (Investment Committee)</option>
-                      <option value="ADMIN">Managing Partner (Super Admin)</option>
-                    </select>
-                  </div>
-
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div>
-                      <label style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Capital (₹)</label>
-                      <input type="number" id="signup-capital" placeholder="500000" value="500000" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
-                    </div>
-                    <div>
-                      <label style="font-size: 0.72rem; color: #64748b; font-weight: 700; text-transform: uppercase;">PAN / DPIN</label>
-                      <input type="text" id="signup-pan" placeholder="ABCDE1234F" style="width: 100%; padding: 9px 12px; font-size: 0.84rem; border-radius: 8px; border: 1px solid #ede4da; background: #fbf8f4; outline: none; box-sizing: border-box;">
-                    </div>
-                  </div>
-
-                  <button class="auth-pill-btn-orange" id="btn-submit-signup" style="margin-top: 6px;">
-                    <span>Complete Sign Up & Enter Portal</span>
+                <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;">
+                  <button class="role-chip ${selectedRoleFilter === 'ALL' ? 'active' : ''}" data-filter="ALL" style="padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'ALL' ? '#ea580c' : '#ede4da'}; background: ${selectedRoleFilter === 'ALL' ? '#fff7ed' : '#ffffff'}; color: ${selectedRoleFilter === 'ALL' ? '#ea580c' : '#64748b'}; cursor: pointer; white-space: nowrap;">
+                    All (${store.partners.length})
+                  </button>
+                  <button class="role-chip ${selectedRoleFilter === 'ADMIN' ? 'active' : ''}" data-filter="ADMIN" style="padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'ADMIN' ? '#ea580c' : '#ede4da'}; background: ${selectedRoleFilter === 'ADMIN' ? '#fff7ed' : '#ffffff'}; color: ${selectedRoleFilter === 'ADMIN' ? '#ea580c' : '#64748b'}; cursor: pointer; white-space: nowrap;">
+                    Managing Partner (${superAdmins.length})
+                  </button>
+                  <button class="role-chip ${selectedRoleFilter === 'DESIGNATED' ? 'active' : ''}" data-filter="DESIGNATED" style="padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'DESIGNATED' ? '#2563eb' : '#ede4da'}; background: ${selectedRoleFilter === 'DESIGNATED' ? '#eff6ff' : '#ffffff'}; color: ${selectedRoleFilter === 'DESIGNATED' ? '#2563eb' : '#64748b'}; cursor: pointer; white-space: nowrap;">
+                    Designated (${committeeMembers.length})
+                  </button>
+                  <button class="role-chip ${selectedRoleFilter === 'LP' ? 'active' : ''}" data-filter="LP" style="padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; border: 1px solid ${selectedRoleFilter === 'LP' ? '#10b981' : '#ede4da'}; background: ${selectedRoleFilter === 'LP' ? '#ecfdf5' : '#ffffff'}; color: ${selectedRoleFilter === 'LP' ? '#10b981' : '#64748b'}; cursor: pointer; white-space: nowrap;">
+                    Individual LP (${lps.length})
                   </button>
                 </div>
-              `}
+              </div>
+
+              <!-- Direct Partner Whitelist Switcher List -->
+              <div style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; padding-right: 4px;" id="sheet-partners-list">
+                ${filteredPartners.length === 0 ? `
+                  <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 0.82rem;">
+                    No authorized partner found matching "${searchQuery}"
+                  </div>
+                ` : filteredPartners.map(p => {
+                  const isSA = superAdmins.some(a => a.partnerId === p.partnerId);
+                  const isDP = committeeMembers.some(c => c.partnerId === p.partnerId);
+                  const roleLabel = isSA ? 'Super Admin / Managing Partner' : isDP ? 'Designated Partner' : 'Individual LP';
+                  const roleColor = isSA ? '#ea580c' : isDP ? '#2563eb' : '#10b981';
+                  const roleBg = isSA ? '#fff7ed' : isDP ? '#eff6ff' : '#ecfdf5';
+
+                  return `
+                    <button class="btn btn-secondary btn-sm sheet-partner-btn" data-id="${p.partnerId}" style="display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 10px 12px; border-radius: 12px; background: #ffffff; border: 1px solid #ede4da; cursor: pointer; width: 100%; transition: all 0.15s ease;">
+                      <div style="overflow: hidden; text-overflow: ellipsis; padding-right: 8px;">
+                        <div style="font-weight: 700; color: #1e293b; font-size: 0.84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.fullName}</div>
+                        <div style="font-size: 0.68rem; color: #64748b; font-family: monospace;">${p.partnerId} • ${p.email}</div>
+                      </div>
+                      <span style="font-size: 0.65rem; font-weight: 700; color: ${roleColor}; background: ${roleBg}; padding: 3px 8px; border-radius: 6px; white-space: nowrap;">
+                        ${roleLabel}
+                      </span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
             `}
 
           </div>
@@ -444,7 +393,7 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
     store.notify();
   });
 
-  // Continue with Google — Native Android Google Sign-In / Web Popup
+  // Continue with Google — Native Google Sign-In / Web Popup
   document.getElementById('btn-continue-google')?.addEventListener('click', async () => {
     const btn = document.getElementById('btn-continue-google');
     const originalHTML = btn ? btn.innerHTML : '';
@@ -457,22 +406,20 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       const result = await signInWithGoogle();
 
       if (result && result.profile) {
-        store.setFirebaseUser(result.profile);
         const email = result.profile.email;
         const matched = findPartnerByIdentifier(email);
         if (matched) {
+          store.setFirebaseUser(result.profile);
           store.setCurrentUser(matched.partnerId);
+          activeAuthMode = null;
+          if (onLoginSuccess) onLoginSuccess();
         } else {
-          store.registerPartner({
-            fullName: result.profile.displayName || result.user?.displayName || 'Google User',
-            email: email,
-            mobile: result.profile.phoneNumber || '',
-            role: 'PARTNER',
-            committedCapital: 500000
-          });
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+          }
+          alert(`Access Denied: The Google email "${email}" is not registered as an authorized account holder of Sahasraartha Family Office LLP. Only official partners are permitted.`);
         }
-        activeAuthMode = null;
-        if (onLoginSuccess) onLoginSuccess();
       }
     } catch (err) {
       console.warn('[AndroidLogin] Google sign-in encountered an issue, opening Google Account Chooser:', err);
@@ -482,10 +429,8 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       }
       const msg = err?.message || err?.toString() || '';
       if (msg.includes('cancelled') || msg.includes('12501') || msg.includes('user_cancelled')) {
-        // User deliberately cancelled the popup/picker
         return;
       }
-      // Seamlessly transition to Google Account Chooser modal
       activeAuthMode = 'google_fallback';
       store.notify();
     }
@@ -498,28 +443,21 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       const name = item.getAttribute('data-name');
       if (!email) return;
 
-      const profile = {
-        displayName: name || email.split('@')[0],
-        email: email,
-        phoneNumber: '',
-        photoURL: ''
-      };
-      store.setFirebaseUser(profile);
-
       const matched = findPartnerByIdentifier(email);
       if (matched) {
-        store.setCurrentUser(matched.partnerId);
-      } else {
-        store.registerPartner({
-          fullName: name || 'Google User',
+        const profile = {
+          displayName: name || email.split('@')[0],
           email: email,
-          mobile: '',
-          role: 'PARTNER',
-          committedCapital: 500000
-        });
+          phoneNumber: '',
+          photoURL: ''
+        };
+        store.setFirebaseUser(profile);
+        store.setCurrentUser(matched.partnerId);
+        activeAuthMode = null;
+        if (onLoginSuccess) onLoginSuccess();
+      } else {
+        alert(`Access Denied: The email "${email}" is not registered as an authorized account holder.`);
       }
-      activeAuthMode = null;
-      if (onLoginSuccess) onLoginSuccess();
     });
   });
 
@@ -532,28 +470,21 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       return;
     }
 
-    const profile = {
-      displayName: email.split('@')[0].toUpperCase(),
-      email: email,
-      phoneNumber: '',
-      photoURL: ''
-    };
-    store.setFirebaseUser(profile);
-
     const matched = findPartnerByIdentifier(email);
     if (matched) {
-      store.setCurrentUser(matched.partnerId);
-    } else {
-      store.registerPartner({
-        fullName: email.split('@')[0].toUpperCase(),
+      const profile = {
+        displayName: email.split('@')[0].toUpperCase(),
         email: email,
-        mobile: '',
-        role: 'PARTNER',
-        committedCapital: 500000
-      });
+        phoneNumber: '',
+        photoURL: ''
+      };
+      store.setFirebaseUser(profile);
+      store.setCurrentUser(matched.partnerId);
+      activeAuthMode = null;
+      if (onLoginSuccess) onLoginSuccess();
+    } else {
+      alert(`Access Denied: "${email}" is not an authorized account holder of Sahasraartha Family Office LLP. Only official partners are permitted.`);
     }
-    activeAuthMode = null;
-    if (onLoginSuccess) onLoginSuccess();
   });
 
   // Custom Google Email Submit — Sends 6-Digit Email OTP
@@ -562,6 +493,12 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
     const email = input ? input.value.trim() : '';
     if (!email || !email.includes('@')) {
       alert('Please enter a valid Google email address');
+      return;
+    }
+
+    const matched = findPartnerByIdentifier(email);
+    if (!matched) {
+      alert(`Access Denied: "${email}" is not an authorized account holder of Sahasraartha Family Office LLP.`);
       return;
     }
 
@@ -593,7 +530,13 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
     const emailInput = document.getElementById('auth-email-input');
     const email = emailInput ? emailInput.value.trim() : '';
     if (!email || !email.includes('@')) {
-      alert('Please enter a valid email address');
+      alert('Please enter a valid registered email address');
+      return;
+    }
+
+    const matched = findPartnerByIdentifier(email);
+    if (!matched) {
+      alert(`Access Denied: The email "${email}" is not registered as an authorized account holder of Sahasraartha Family Office LLP.`);
       return;
     }
 
@@ -629,25 +572,27 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       return;
     }
 
+    const matched = findPartnerByIdentifier(enteredIdentifier);
+    if (!matched) {
+      alert(`Access Denied: Mobile number "+91 ${enteredIdentifier.replace(/\D/g, '').slice(-10)}" is not registered for any authorized account holder of Sahasraartha Family Office LLP.`);
+      return;
+    }
+
     const btn = document.getElementById('btn-sheet-send-phone-otp');
     const originalHTML = btn ? btn.innerHTML : '';
 
     try {
-      // Show loading
       if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<span style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" class="auth-spinner"><circle cx="12" cy="12" r="10" stroke="#ea580c" stroke-width="3" fill="none" stroke-dasharray="30 70" stroke-linecap="round"/></svg> Sending OTP...</span>';
       }
 
-      // Format to international format
       const digits = enteredIdentifier.replace(/\D/g, '').slice(-10);
       const phoneNumber = '+91' + digits;
-      enteredIdentifier = digits; // Store clean digits for display
+      enteredIdentifier = digits;
 
-      // Send OTP
       await sendPhoneOTP(phoneNumber);
 
-      // Navigate to OTP screen
       activeAuthMode = 'otp';
       store.notify();
     } catch (err) {
@@ -660,41 +605,16 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
     }
   });
 
-  // Submit Email Login
-  document.getElementById('btn-sheet-submit-email')?.addEventListener('click', () => {
-    const emailInput = document.getElementById('auth-email-input');
-    enteredIdentifier = emailInput ? emailInput.value.trim() : '';
-    if (!enteredIdentifier) {
-      alert('Please enter your email address');
-      return;
-    }
-    const matched = findPartnerByIdentifier(enteredIdentifier);
-    if (matched) {
-      store.setCurrentUser(matched.partnerId);
-    } else {
-      store.registerPartner({
-        fullName: enteredIdentifier.split('@')[0].toUpperCase(),
-        email: enteredIdentifier,
-        mobile: '',
-        role: 'PARTNER',
-        committedCapital: 500000
-      });
-    }
-    activeAuthMode = null;
-    if (onLoginSuccess) onLoginSuccess();
-  });
-
   // Continue with Apple
   document.getElementById('btn-continue-apple')?.addEventListener('click', () => {
-    store.setCurrentUser('SH-LP-001');
+    store.setCurrentUser('SH-SA-001'); // Srikanth (Super Admin)
     activeAuthMode = null;
     if (onLoginSuccess) onLoginSuccess();
   });
 
-  // Open Persona switch sheet / Sign Up
+  // Open Partner Directory sheet
   document.getElementById('btn-open-persona-sheet')?.addEventListener('click', () => {
     activeAuthMode = 'persona';
-    activeSheetTab = 'signup';
     store.notify();
   });
 
@@ -710,17 +630,6 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       activeAuthMode = null;
       store.notify();
     }
-  });
-
-  // Tab switching
-  document.getElementById('tab-btn-select-partner')?.addEventListener('click', () => {
-    activeSheetTab = 'select';
-    store.notify();
-  });
-
-  document.getElementById('tab-btn-signup-partner')?.addEventListener('click', () => {
-    activeSheetTab = 'signup';
-    store.notify();
   });
 
   // Role chip filtering
@@ -798,7 +707,6 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
 
   // Verify OTP — Handles both Email OTP and Phone OTP
   document.getElementById('btn-sheet-verify-otp')?.addEventListener('click', async () => {
-    // Collect all 6 digits
     const otpInputs = document.querySelectorAll('.otp-digit-input');
     let otpCode = '';
     otpInputs.forEach(input => { otpCode += input.value; });
@@ -812,7 +720,6 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
     const originalHTML = btn ? btn.innerHTML : '';
 
     try {
-      // Show loading
       if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<span style="display:flex;align-items:center;gap:8px;"><svg width="18" height="18" viewBox="0 0 24 24" class="auth-spinner"><circle cx="12" cy="12" r="10" stroke="#ea580c" stroke-width="3" fill="none" stroke-dasharray="30 70" stroke-linecap="round"/></svg> Verifying...</span>';
@@ -822,48 +729,26 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       const isEmail = (enteredIdentifier || '').includes('@');
 
       if (isEmail) {
-        // Verify Email OTP
         result = await verifyEmailOTP(enteredIdentifier, otpCode);
       } else {
-        // Verify Phone OTP
         result = await verifyPhoneOTP(otpCode);
       }
 
       if (result && result.profile) {
-        store.setFirebaseUser(result.profile);
-        
-        if (isEmail) {
-          const email = result.profile.email || enteredIdentifier;
-          const matched = findPartnerByIdentifier(email);
-          if (matched) {
-            store.setCurrentUser(matched.partnerId);
-          } else {
-            store.registerPartner({
-              fullName: result.profile.displayName || email.split('@')[0].toUpperCase(),
-              email: email,
-              mobile: '',
-              role: 'PARTNER',
-              committedCapital: 500000
-            });
-          }
+        const idToCheck = isEmail ? (result.profile.email || enteredIdentifier) : (result.profile.phoneNumber || enteredIdentifier);
+        const matched = findPartnerByIdentifier(idToCheck) || findPartnerByIdentifier(enteredIdentifier);
+        if (matched) {
+          store.setFirebaseUser(result.profile);
+          store.setCurrentUser(matched.partnerId);
+          activeAuthMode = null;
+          if (onLoginSuccess) onLoginSuccess();
         } else {
-          const phone = result.profile.phoneNumber || enteredIdentifier;
-          const matched = findPartnerByIdentifier(phone) || findPartnerByIdentifier(enteredIdentifier);
-          if (matched) {
-            store.setCurrentUser(matched.partnerId);
-          } else {
-            store.registerPartner({
-              fullName: result.profile.displayName || 'Partner',
-              email: result.profile.email || '',
-              mobile: '+91' + enteredIdentifier.replace(/\D/g, '').slice(-10),
-              role: 'PARTNER',
-              committedCapital: 500000
-            });
+          if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
           }
+          alert(`Access Denied: "${idToCheck}" is not registered as an authorized account holder of Sahasraartha Family Office LLP.`);
         }
-
-        activeAuthMode = null;
-        if (onLoginSuccess) onLoginSuccess();
       }
     } catch (err) {
       console.error('[AndroidLogin] OTP verification error:', err);
@@ -900,32 +785,5 @@ export function attachAndroidLoginEvents(onLoginSuccess) {
       activeAuthMode = null;
       if (onLoginSuccess) onLoginSuccess();
     });
-  });
-
-  // New Partner Sign Up Submission
-  document.getElementById('btn-submit-signup')?.addEventListener('click', () => {
-    const fullName = document.getElementById('signup-fullname')?.value.trim();
-    const email = document.getElementById('signup-email')?.value.trim();
-    const mobile = document.getElementById('signup-mobile')?.value.trim();
-    const role = document.getElementById('signup-role')?.value || 'PARTNER';
-    const capital = Number(document.getElementById('signup-capital')?.value || 500000);
-    const pan = document.getElementById('signup-pan')?.value.trim();
-
-    if (!fullName) {
-      alert('Please enter your Full Legal Name');
-      return;
-    }
-
-    store.registerPartner({
-      fullName,
-      email,
-      mobile,
-      role,
-      committedCapital: capital,
-      pan
-    });
-
-    activeAuthMode = null;
-    if (onLoginSuccess) onLoginSuccess();
   });
 }

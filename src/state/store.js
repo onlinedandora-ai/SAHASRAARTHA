@@ -35,8 +35,13 @@ class SFOStore {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        this.currentUser = parsed.currentUser || PARTNERS_DATA[0];
-        this.partners = parsed.partners || [...PARTNERS_DATA];
+        // Refresh partners from canonical PARTNERS_DATA to always guarantee verified records & calculations
+        this.partners = PARTNERS_DATA.map(canonical => {
+          const stored = (parsed.partners || []).find(p => p.partnerId === canonical.partnerId);
+          return stored ? { ...canonical, ...stored, fullName: canonical.fullName, role: canonical.role, sharePct: canonical.sharePct, unitsAllocated: canonical.unitsAllocated, totalInvested: canonical.totalInvested, committedCapital: canonical.committedCapital } : canonical;
+        });
+        const currentId = parsed.currentUser?.partnerId || 'SH-SA-001';
+        this.currentUser = this.partners.find(p => p.partnerId === currentId) || this.partners[0];
         this.portfolioAssets = parsed.portfolioAssets || [...PORTFOLIO_ASSETS];
         this.capitalCalls = parsed.capitalCalls || [...INITIAL_CAPITAL_CALLS];
         this.capitalTransactions = parsed.capitalTransactions || [...INITIAL_CAPITAL_TRANSACTIONS];
@@ -198,6 +203,7 @@ class SFOStore {
     const partner = this.partners.find(p => p.partnerId === partnerId);
     if (partner) {
       this.currentUser = partner;
+      this.saveState();
       this.notify();
     }
   }
