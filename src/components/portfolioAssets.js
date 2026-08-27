@@ -21,7 +21,9 @@ export function renderPortfolioAssets() {
   const user = store.currentUser;
   const calcs = store.getCalculations();
   const psr = user.sharePct ? user.sharePct / 100 : (user.psr || 0.07869);
-  const isSuperAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' || user.partnerId === 'SH-SA-001';
+  const isSuperAdmin = store.isSuperAdmin;
+  const partnerUnits = Number(user.unitsAllocated || 0);
+  const currentPortfolioValue = partnerUnits * calcs.navPerUnit;
 
   // Filter 18-Securities Holdings
   let filteredHoldings = HOLDINGS_AS_AT_13_AUG_2026;
@@ -81,16 +83,32 @@ export function renderPortfolioAssets() {
           </div>
         </div>
 
+        <!-- Active Partner Fractional Holding Banner -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(212, 175, 55, 0.08); border-radius: 10px; border: 1px solid rgba(212, 175, 55, 0.35); margin-top: 12px; gap: 8px; flex-wrap: wrap;">
+          <div>
+            <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+              ${user.fullName} (${(psr * 100).toFixed(3)}% Stake):
+            </div>
+            <div style="font-size: 1.1rem; font-weight: 800; color: var(--accent-emerald); font-family: monospace; margin-top: 2px;">
+              ${formatINR(currentPortfolioValue)}
+            </div>
+          </div>
+          <div style="text-align: right; font-size: 0.72rem; color: var(--text-secondary);">
+            <div>Units: <strong style="color: var(--text-primary); font-family: monospace;">${partnerUnits.toLocaleString('en-IN')}</strong> @ ₹${calcs.navPerUnit.toFixed(2)}</div>
+            <div>Invested: <strong style="color: var(--text-primary); font-family: monospace;">${formatINR(user.totalInvested || 0)}</strong></div>
+          </div>
+        </div>
+
         <!-- View Mode Segmented Controls -->
         <div style="display: flex; gap: 6px; margin-top: 12px; background: rgba(0,0,0,0.04); padding: 4px; border-radius: 10px;">
           <button class="btn btn-sm btn-view-mode ${activeViewMode === 'TABLE' ? 'btn-primary' : 'btn-secondary'}" data-mode="TABLE" style="flex: 1; padding: 6px 8px; font-size: 0.74rem; font-weight: 700;">
-            📋 Holdings Table (18)
+            Holdings Table (18)
           </button>
           <button class="btn btn-sm btn-view-mode ${activeViewMode === 'CARDS' ? 'btn-primary' : 'btn-secondary'}" data-mode="CARDS" style="flex: 1; padding: 6px 8px; font-size: 0.74rem; font-weight: 700;">
-            📊 Category View
+            Category View
           </button>
           <button class="btn btn-sm btn-view-mode ${activeViewMode === 'ALLOCATION' ? 'btn-primary' : 'btn-secondary'}" data-mode="ALLOCATION" style="flex: 1; padding: 6px 8px; font-size: 0.74rem; font-weight: 700;">
-            📈 Asset Donut
+            Asset Donut
           </button>
         </div>
       </div>
@@ -476,15 +494,22 @@ export function attachPortfolioAssetsEvents() {
   });
 
   // Close drill-down modal
-  document.getElementById('btn-close-drilldown')?.addEventListener('click', () => {
+  window.__closeAssetDrilldown = function(e) {
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     store.selectedAssetId = null;
-    store.notify();
-  });
+    store.closeModal();
+    const el = document.getElementById('asset-drilldown-backdrop');
+    if (el) el.remove();
+  };
+
+  document.getElementById('btn-close-drilldown')?.addEventListener('click', window.__closeAssetDrilldown);
 
   document.getElementById('asset-drilldown-backdrop')?.addEventListener('click', (e) => {
     if (e.target.id === 'asset-drilldown-backdrop') {
-      store.selectedAssetId = null;
-      store.notify();
+      window.__closeAssetDrilldown(e);
     }
   });
 }

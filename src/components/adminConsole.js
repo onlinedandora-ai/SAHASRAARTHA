@@ -83,7 +83,7 @@ export function renderAdminConsole() {
 
         ${pendingTxs.length === 0 ? `
           <div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.78rem;">
-            ✓ All partner payment proofs verified. No pending UTR submissions.
+            All partner payment proofs verified. No pending UTR submissions.
           </div>
         ` : `
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -118,6 +118,61 @@ export function renderAdminConsole() {
                   <button class="btn btn-secondary btn-sm btn-reject-utr" data-tx-id="${tx.transactionId}" style="flex: 1; padding: 5px; font-size: 0.74rem; color: #f87171;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     Reject Payment
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>
+
+      <!-- PENDING CAPITAL PROPOSALS DESK (Screen 8 Extension) -->
+      <div class="card" style="margin-bottom: 16px; padding: 16px;">
+        <div class="card-header" style="margin-bottom: 10px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-size: 1.05rem; color: var(--text-primary);">Partner Capital Proposals Queue</h3>
+              <span class="badge ${pendingProposals.length > 0 ? 'badge-pending' : 'badge-verified'}">${pendingProposals.length} Pending</span>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">Review Partner Capital Top-Up Invocations</p>
+          </div>
+        </div>
+
+        ${pendingProposals.length === 0 ? `
+          <div style="text-align: center; padding: 16px; color: var(--text-muted); font-size: 0.78rem;">
+            No pending capital proposals.
+          </div>
+        ` : `
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${pendingProposals.map(prop => `
+              <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px; font-size: 0.76rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span class="mono" style="font-weight: 700; color: var(--accent-gold);">${prop.proposalId}</span>
+                      <strong style="color: var(--text-primary);">${prop.partnerName}</strong>
+                    </div>
+                    <div style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px;">
+                      Notes: ${prop.notes || 'Capital infusion proposal'} &bull; Submitted: ${formatDate(prop.submittedAt)}
+                    </div>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 2px;">
+                      Estimated Units @ ₹${(prop.currentNAVAtProposal || calcs.navPerUnit).toFixed(2)} NAV: <strong>${formatUnits(prop.estimatedUnits || (prop.proposedAmount / calcs.navPerUnit))} Units</strong>
+                    </div>
+                  </div>
+
+                  <div style="text-align: right; flex-shrink: 0;">
+                    <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald);">${formatINR(prop.proposedAmount)}</div>
+                    <span class="badge badge-pending" style="font-size: 0.6rem;">Requires Super Admin</span>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
+                  <button class="btn btn-primary btn-sm btn-approve-proposal" data-prop-id="${prop.proposalId}" style="flex: 1; padding: 5px; font-size: 0.74rem;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    Approve & Issue Tranche
+                  </button>
+                  <button class="btn btn-secondary btn-sm btn-reject-proposal" data-prop-id="${prop.proposalId}" style="flex: 1; padding: 5px; font-size: 0.74rem; color: #f87171;">
+                    Reject
                   </button>
                 </div>
               </div>
@@ -398,4 +453,27 @@ export function attachAdminEvents() {
       store.closeModal();
     });
   }
+
+  // Approve Proposal buttons
+  document.querySelectorAll('.btn-approve-proposal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const propId = btn.getAttribute('data-prop-id');
+      const res = store.approveProposal(propId);
+      if (res && res.success) {
+        alert(`Capital proposal ${propId} approved! Units allotted and bank cash updated.`);
+      }
+    });
+  });
+
+  // Reject Proposal buttons
+  document.querySelectorAll('.btn-reject-proposal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const propId = btn.getAttribute('data-prop-id');
+      const reason = prompt("Enter rejection reason:");
+      if (reason) {
+        store.rejectProposal(propId, reason);
+        alert(`Capital proposal ${propId} declined.`);
+      }
+    });
+  });
 }

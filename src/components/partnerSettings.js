@@ -9,6 +9,7 @@
 
 import { store } from '../state/store.js';
 import { openDownloadModal } from './downloadModal.js';
+import { checkForAppUpdates, CURRENT_APP_VERSION } from '../services/appUpdateService.js';
 
 export function renderPartnerSettings() {
   const user = store.currentUser;
@@ -134,7 +135,28 @@ export function renderPartnerSettings() {
 
       <!-- SECURITY & BIOMETRIC AUTH TOGGLE -->
       <div class="card" style="margin-bottom: 14px; padding: 16px;">
-        <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 10px;">Security & Biometrics</h4>
+        <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 10px;">Security & Passcode Protection</h4>
+
+        ${store.isSuperAdmin ? `
+          <!-- Super Admin Master Password Settings -->
+          <div style="background: rgba(234, 88, 12, 0.08); border: 1px solid rgba(234, 88, 12, 0.25); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 700; font-size: 0.84rem; color: #ea580c; display: flex; align-items: center; gap: 6px;">
+                Super Admin Master Password
+              </span>
+              <span class="badge" style="background: #fff7ed; color: #ea580c; font-size: 0.65rem; font-weight: 800;">Protected</span>
+            </div>
+            <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0 0 10px 0;">
+              Master password used to authenticate Srikanth Ayinavolu across mobile devices.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" id="input-new-super-admin-pass" placeholder="Enter new master password" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; border: 1.5px solid #ede4da; background: var(--bg-card); color: var(--text-primary); outline: none;">
+              <button id="btn-update-admin-pass" class="btn btn-primary btn-sm" style="padding: 8px 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
+                Save Password
+              </button>
+            </div>
+          </div>
+        ` : ''}
 
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
           <div>
@@ -172,14 +194,23 @@ export function renderPartnerSettings() {
           Cloud Firestore backend streams real-time portfolio NAV, ledger transactions, and push notifications for every valuation update.
         </p>
 
-        <button id="btn-settings-download-apk" class="btn btn-primary btn-sm" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 0.78rem; padding: 10px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Download Android App (.APK) & QR Scanner
-        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button id="btn-settings-check-update" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 0.76rem; padding: 10px; border-color: rgba(212, 175, 55, 0.4); color: var(--accent-gold);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            Check for Updates
+          </button>
+          
+          <button id="btn-settings-download-apk" class="btn btn-primary btn-sm" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; font-size: 0.76rem; padding: 10px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download APK & QR
+          </button>
+        </div>
       </div>
 
       <!-- DEDICATED SIGN OUT / LOGOUT ACTION -->
@@ -187,21 +218,24 @@ export function renderPartnerSettings() {
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
           <div>
             <div style="font-weight: 700; font-size: 0.85rem; color: #ef4444; display: flex; align-items: center; gap: 6px;">
-              <span>🚪</span> Account Session
+              Account Session
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">
               Logged in as <strong style="color: var(--text-secondary);">${user.fullName}</strong>
             </div>
           </div>
           <button class="btn btn-secondary btn-sm" id="btn-settings-signout" style="padding: 7px 14px; font-size: 0.76rem; font-weight: 700; color: #ef4444; border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.1); cursor: pointer; display: flex; align-items: center; gap: 5px;">
-            <span>🚪</span> Sign Out
+            Sign Out
           </button>
         </div>
       </div>
 
       <!-- APP VERSION & GOVERNANCE INFO -->
       <div style="text-align: center; font-size: 0.7rem; color: var(--text-muted); padding: 10px;">
-        <div>Sahasraartha Family Office LLP &bull; v1.0.0 Production</div>
+        <div style="color: var(--accent-gold); font-weight: 700; margin-bottom: 2px;">
+          ⚡ Live Cloud Sync Enabled &bull; v${CURRENT_APP_VERSION}
+        </div>
+        <div>Sahasraartha Family Office LLP &bull; Production Release</div>
         <div>Firestore Project: saharaartha-f867c &bull; Realtime FCM Active</div>
         <div>Statutory Auditor: Murahari & Associates &bull; MCA India</div>
       </div>
@@ -269,9 +303,29 @@ function renderBankUpdateModal(user) {
 }
 
 export function attachPartnerSettingsEvents() {
+  // Check for updates button
+  document.getElementById('btn-settings-check-update')?.addEventListener('click', () => {
+    checkForAppUpdates({ manual: true });
+  });
+
   // Download APK modal button
   document.getElementById('btn-settings-download-apk')?.addEventListener('click', () => {
     openDownloadModal();
+  });
+
+  // Update Super Admin Master Password
+  document.getElementById('btn-update-admin-pass')?.addEventListener('click', () => {
+    const input = document.getElementById('input-new-super-admin-pass');
+    const newPass = input ? input.value.trim() : '';
+    if (!newPass || newPass.length < 4) {
+      alert('Password must be at least 4 characters long.');
+      return;
+    }
+    const success = store.setSuperAdminPassword(newPass);
+    if (success) {
+      alert('Super Admin Master Password updated successfully!');
+      if (input) input.value = '';
+    }
   });
 
   // Biometrics toggle

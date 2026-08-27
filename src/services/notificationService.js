@@ -211,14 +211,14 @@ function showFloatingToast(title, message, category, actor) {
   `;
 
   const categoryBadge = {
-    PORTFOLIO: '📊 PORTFOLIO',
-    LEDGER: '💳 LEDGER',
-    CAPITAL_CALL: '📢 CAPITAL CALL',
-    DISTRIBUTION: '💰 DISTRIBUTION',
-    PROPOSAL: '🗳️ PROPOSAL',
-    SYSTEM: '⚡ SYSTEM',
-    INFO: '🔔 UPDATE'
-  }[category] || '🔔 UPDATE';
+    PORTFOLIO: 'PORTFOLIO',
+    LEDGER: 'LEDGER',
+    CAPITAL_CALL: 'CAPITAL CALL',
+    DISTRIBUTION: 'DISTRIBUTION',
+    PROPOSAL: 'PROPOSAL',
+    SYSTEM: 'SYSTEM',
+    INFO: 'UPDATE'
+  }[category] || 'UPDATE';
 
   toast.innerHTML = `
     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px;">

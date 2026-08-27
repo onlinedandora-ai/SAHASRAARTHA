@@ -105,7 +105,7 @@ export function attachAuthEvents() {
         p.partnerId.toLowerCase() === inputVal
       ) || store.partners[0];
 
-      store.setCurrentUser(matched.partnerId);
+      store.loginPartner(matched.partnerId);
       const modal = document.getElementById('auth-modal-overlay');
       if (modal) modal.remove();
     });

@@ -26,21 +26,23 @@ import { renderIOSLogin, attachIOSLoginEvents } from './ios/login/iosLogin.js';
 // Firebase Authentication, Firestore Real-Time Sync & Notifications
 import { initFirebase, checkRedirectResult, onAuthChanged, signOut as firebaseSignOut } from './services/firebaseAuth.js';
 import { initFirestoreSync } from './services/firestoreSync.js';
-import { initNotificationService } from './services/notificationService.js';
+import { initNotificationService, triggerInAppNotification } from './services/notificationService.js';
 import { openDownloadModal } from './components/downloadModal.js';
+import { initAppUpdateService } from './services/appUpdateService.js';
 
 // Detect platform or default
 const isAndroid = /Android/i.test(navigator.userAgent);
-let isAuthenticated = false; // Start directly on clean reference login screen
+let isAuthenticated = false; // Always require login on app launch - prevent direct login
 
-// ─── Initialize Firebase, Firestore Live Sync & Notifications ──────────────
+// ─── Initialize Firebase, Firestore Live Sync, Notifications & App Updates ───
 try {
   initFirebase();
   console.log('[App] Firebase initialized');
   initFirestoreSync(store);
   initNotificationService();
+  initAppUpdateService();
 } catch (err) {
-  console.error('[App] Firebase init failed:', err);
+  console.error('[App] Init failed:', err);
 }
 
 // Check for Google redirect result (in case signInWithRedirect was used)
@@ -48,23 +50,52 @@ checkRedirectResult().then(result => {
   if (result && result.profile) {
     console.log('[App] Redirect sign-in result:', result.profile.email);
     store.setFirebaseUser(result.profile);
-    const email = result.profile.email;
+    const email = result.profile.email ? result.profile.email.toLowerCase() : '';
     const phone = result.profile.phoneNumber;
-    const matched = store.partners.find(p =>
-      (email && (p.email.toLowerCase() === email.toLowerCase() || (email.toLowerCase() === 'sahasraarthasfo@gmail.com' && p.partnerId === 'SH-SA-001'))) ||
-      (phone && p.mobile && p.mobile.replace(/\D/g, '').slice(-10) === phone.replace(/\D/g, '').slice(-10))
-    );
-    if (matched) {
-      store.setCurrentUser(matched.partnerId);
-      isAuthenticated = true;
-      renderApp();
+    const isSuperAdminEmail = email === 'sahasraarthasfo@gmail.com' || email === 'srikanth.ayinavolu@gmail.com' || email === 'srikanth@sahasraartha.in';
+
+    let matched = null;
+    if (isSuperAdminEmail) {
+      matched = store.partners.find(p => p.partnerId === 'SH-SA-001') || store.partners[0];
     } else {
-      alert(`Access Denied: The email "${email || phone}" is not registered as an authorized account holder of Sahasraartha Family Office LLP. Only official partners are permitted.`);
+      matched = store.partners.find(p =>
+        (email && (p.email.toLowerCase() === email || (Array.isArray(p.aliases) && p.aliases.some(a => a.toLowerCase() === email)))) ||
+        (phone && p.mobile && p.mobile.replace(/\D/g, '').slice(-10) === phone.replace(/\D/g, '').slice(-10))
+      );
+    }
+
+    if (matched) {
+      store.loginPartner(matched.partnerId);
+      isAuthenticated = true;
+      onLoginCompleted();
+    } else {
+      alert(`Access Denied: "${email || phone}" is not an authorized account holder of Sahasraartha Family Office LLP. Only official partners are permitted.`);
       isAuthenticated = false;
       renderApp();
     }
   }
 }).catch(() => { /* ignore */ });
+
+function onLoginCompleted() {
+  isAuthenticated = true;
+  store.isLoggedIn = true;
+  store.saveState();
+  if (store.isSuperAdmin) {
+    const pendingTxs = store.capitalTransactions.filter(t => t.status === 'PENDING');
+    const pendingProposals = store.proposals.filter(p => p.status === 'PENDING');
+    if (pendingTxs.length > 0 || pendingProposals.length > 0) {
+      setTimeout(() => {
+        triggerInAppNotification({
+          title: 'Super Admin Approvals Required',
+          message: `${pendingTxs.length} Pending UTR Verification (${pendingTxs[0]?.partnerName || 'Sarada Ganesh Panathula'} - ₹${Number(pendingTxs[0]?.amount || 918000).toLocaleString('en-IN')}) and ${pendingProposals.length} Capital Proposals require your verification.`,
+          category: 'LEDGER',
+          actor: 'Sahasraartha System'
+        });
+      }, 500);
+    }
+  }
+  renderApp();
+}
 
 function renderApp() {
   const app = document.getElementById('app');
@@ -73,6 +104,7 @@ function renderApp() {
   const user = store.currentUser;
   const calcs = store.getCalculations();
   const activeTab = store.activeTab;
+  const isSuperAdmin = store.isSuperAdmin;
   const pendingTxsCount = store.capitalTransactions.filter(t => t.status === 'PENDING').length;
   const pendingProposalsCount = store.proposals.filter(p => p.status === 'PENDING').length;
   const totalAdminBadge = pendingTxsCount + pendingProposalsCount;
@@ -102,7 +134,15 @@ function renderApp() {
                 </div>
                 <div class="mobile-brand-info">
                   <div class="mobile-brand-title">SAHASRAARTHA SFO</div>
-                  <div class="mobile-brand-sub">${user.fullName} &bull; ${user.dpin ? 'DPIN: ' + user.dpin : user.partnerId}</div>
+                  <div class="mobile-brand-sub">
+                    ${isSuperAdmin
+                      ? (store.isViewingSrikanth 
+                          ? `<span style="color: var(--accent-gold); font-weight: 800;">Super Admin</span> &bull; ${user.fullName.slice(0, 18)}`
+                          : `<span style="color: var(--accent-gold); font-weight: 800;">Super Admin</span> &bull; <span class="badge" style="background: rgba(234,88,12,0.14); color: #ea580c; font-size: 0.64rem; padding: 2px 6px; font-weight: 800;">Viewing: ${user.fullName.slice(0, 15)}</span>`
+                        )
+                      : `${user.fullName} &bull; ${user.dpin ? 'DPIN: ' + user.dpin : user.partnerId}`
+                    }
+                  </div>
                 </div>
               </div>
 
@@ -116,7 +156,7 @@ function renderApp() {
                 </button>
                 <button class="mobile-header-btn" id="btn-toggle-theme" title="${store.theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}">
                   ${store.theme === 'dark' ? `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="12" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                   ` : `
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                   `}
@@ -132,6 +172,33 @@ function renderApp() {
                 </button>
               </div>
             </div>
+
+            <!-- Persistent Super Admin Account Switcher Bar (Always Visible Across All Tabs) -->
+            ${isSuperAdmin ? `
+              <div class="super-admin-switcher-header-bar" style="background: linear-gradient(135deg, rgba(234, 88, 12, 0.09) 0%, rgba(212, 175, 55, 0.12) 100%); border-bottom: 1px solid rgba(212, 175, 55, 0.4); padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 0.72rem; z-index: 35; flex-shrink: 0; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
+                  <span style="font-weight: 800; color: #ea580c; text-transform: uppercase; font-size: 0.64rem; white-space: nowrap;">
+                    Account:
+                  </span>
+                  <select id="global-super-admin-partner-select" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 700; border-radius: 8px; border: 1.5px solid var(--accent-gold); background: var(--bg-card); color: var(--text-primary); outline: none; cursor: pointer; max-width: 195px; width: 100%;">
+                    ${store.partners.map(p => `
+                      <option value="${p.partnerId}" ${p.partnerId === user.partnerId ? 'selected' : ''}>
+                        ${p.partnerId === 'SH-SA-001' ? '★ Srikanth (Super Admin)' : p.fullName.slice(0, 16) + ` (${p.sharePct}%)`}
+                      </option>
+                    `).join('')}
+                  </select>
+                </div>
+                ${!store.isViewingSrikanth ? `
+                  <button id="btn-global-reset-to-super-admin" title="Return to Srikanth Master View" style="padding: 4px 8px; font-size: 0.66rem; font-weight: 800; border-radius: 6px; border: 1px solid rgba(234,88,12,0.5); background: #fff7ed; color: #ea580c; cursor: pointer; white-space: nowrap; flex-shrink: 0;">
+                    ↩ Srikanth
+                  </button>
+                ` : `
+                  <span style="font-size: 0.62rem; color: var(--accent-gold); font-weight: 800; white-space: nowrap; padding-right: 2px;">
+                    Super Admin
+                  </span>
+                `}
+              </div>
+            ` : ''}
 
             <!-- Scrollable App Content Body -->
             <div class="mobile-scroll-body">
@@ -167,7 +234,7 @@ function renderApp() {
                 <span>Vault</span>
               </button>
 
-              ${(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' || user.partnerId === 'SH-SA-001') ? `
+              ${isSuperAdmin ? `
                 <button class="mobile-nav-item ${activeTab === 'admin' ? 'active' : ''}" data-tab="admin">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   <span>Admin</span>
@@ -181,11 +248,6 @@ function renderApp() {
               `}
             </nav>
           `}
-
-          <!-- iOS Home Indicator -->
-          <div class="mobile-home-indicator">
-            <div class="indicator-pill"></div>
-          </div>
 
         </div>
       </div>
@@ -204,13 +266,11 @@ function attachGlobalEvents() {
   if (!isAuthenticated) {
     if (isAndroid) {
       attachAndroidLoginEvents(() => {
-        isAuthenticated = true;
-        renderApp();
+        onLoginCompleted();
       });
     } else {
       attachIOSLoginEvents(() => {
-        isAuthenticated = true;
-        renderApp();
+        onLoginCompleted();
       });
     }
   } else {
@@ -227,12 +287,24 @@ function attachGlobalEvents() {
       } catch (err) {
         console.warn('[App] Firebase sign-out error:', err);
       }
+      store.isLoggedIn = false;
+      store.saveState();
       isAuthenticated = false;
       renderApp();
     };
 
     document.getElementById('btn-lock-app')?.addEventListener('click', handleSignOut);
     document.getElementById('btn-settings-signout')?.addEventListener('click', handleSignOut);
+
+    // Global Super Admin Partner Switcher (Available across all screens)
+    document.getElementById('global-super-admin-partner-select')?.addEventListener('change', (e) => {
+      const partnerId = e.target.value;
+      store.setCurrentUser(partnerId);
+    });
+
+    document.getElementById('btn-global-reset-to-super-admin')?.addEventListener('click', () => {
+      store.setCurrentUser('SH-SA-001');
+    });
 
     // Mobile Bottom Navigation Tab Switching
     document.querySelectorAll('.mobile-nav-item').forEach(btn => {
@@ -295,3 +367,18 @@ store.subscribe(() => {
 
 // Boot app
 renderApp();
+
+if (isAuthenticated && store.isSuperAdmin) {
+  const pendingTxs = store.capitalTransactions.filter(t => t.status === 'PENDING');
+  const pendingProposals = store.proposals.filter(p => p.status === 'PENDING');
+  if (pendingTxs.length > 0 || pendingProposals.length > 0) {
+    setTimeout(() => {
+      triggerInAppNotification({
+        title: 'Super Admin Approvals Required',
+        message: `${pendingTxs.length} Pending UTR Verification (${pendingTxs[0]?.partnerName || 'Sarada Ganesh Panathula'} - ₹${Number(pendingTxs[0]?.amount || 918000).toLocaleString('en-IN')}) and ${pendingProposals.length} Capital Proposals require your verification.`,
+        category: 'LEDGER',
+        actor: 'Sahasraartha System'
+      });
+    }, 600);
+  }
+}

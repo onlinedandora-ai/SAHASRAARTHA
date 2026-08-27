@@ -379,7 +379,7 @@ export async function sendPhoneOTP(phoneNumber) {
   }
 
   // 2. Resilient fallback: Always provide the user with the OTP code on screen
-  console.log(`[FirebaseAuth] 📱 SMS OTP generated for ${cleanPhone}: ${fallbackCode}`);
+  console.log(`[FirebaseAuth] SMS OTP generated for ${cleanPhone}: ${fallbackCode}`);
   showSMSNotification(cleanPhone, fallbackCode);
   return true;
 }
@@ -561,7 +561,7 @@ export async function sendEmailOTP(email) {
     sessionStorage.setItem('sfo_pending_email_otp', JSON.stringify(pendingEmailOTP));
   } catch (_) { /* ignore */ }
 
-  console.log(`[FirebaseAuth] 📧 Verification OTP generated for ${cleanEmail}: ${randomCode}`);
+  console.log(`[FirebaseAuth] Verification OTP generated for ${cleanEmail}: ${randomCode}`);
 
   // Display rich notification toast on screen to simulate inbox email reception
   showEmailNotification(cleanEmail, randomCode);

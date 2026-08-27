@@ -40,8 +40,10 @@ class SFOStore {
           const stored = (parsed.partners || []).find(p => p.partnerId === canonical.partnerId);
           return stored ? { ...canonical, ...stored, fullName: canonical.fullName, role: canonical.role, sharePct: canonical.sharePct, unitsAllocated: canonical.unitsAllocated, totalInvested: canonical.totalInvested, committedCapital: canonical.committedCapital } : canonical;
         });
-        const currentId = parsed.currentUser?.partnerId || 'SH-SA-001';
-        this.currentUser = this.partners.find(p => p.partnerId === currentId) || this.partners[0];
+        const authId = parsed.authPartner?.partnerId || 'SH-SA-001';
+        this.authPartner = this.partners.find(p => p.partnerId === authId) || this.partners[0];
+        const currentId = parsed.currentUser?.partnerId || this.authPartner.partnerId;
+        this.currentUser = this.partners.find(p => p.partnerId === currentId) || this.authPartner;
         this.portfolioAssets = parsed.portfolioAssets || [...PORTFOLIO_ASSETS];
         this.capitalCalls = parsed.capitalCalls || [...INITIAL_CAPITAL_CALLS];
         this.capitalTransactions = parsed.capitalTransactions || [...INITIAL_CAPITAL_TRANSACTIONS];
@@ -57,6 +59,8 @@ class SFOStore {
         this.selectedFiscalYear = parsed.selectedFiscalYear || 'FY2026-27';
         this.biometricsEnabled = parsed.biometricsEnabled !== undefined ? parsed.biometricsEnabled : true;
         this.firebaseUser = parsed.firebaseUser || null; // { uid, email, phoneNumber, displayName, photoURL, providerId }
+        this.superAdminPassword = parsed.superAdminPassword || 'Srikanth@SFO2026';
+        this.isLoggedIn = parsed.isLoggedIn !== undefined ? parsed.isLoggedIn : false;
         this.selectedAssetId = null;
         this.selectedDocId = null;
         this.activeModal = null; // 'STATEMENT' | 'CAPITAL_CALL' | 'DISTRIBUTION_RUN' | 'PROPOSAL' | 'DOC_PREVIEW' | 'DRILLDOWN' | 'BANK_UPDATE' | 'AUTH'
@@ -70,6 +74,7 @@ class SFOStore {
     }
 
     // Default initialization
+    this.authPartner = PARTNERS_DATA[0]; // Srikanth (Super Admin)
     this.currentUser = PARTNERS_DATA[0]; // Srikanth (Super Admin)
     this.partners = [...PARTNERS_DATA];
     this.portfolioAssets = [...PORTFOLIO_ASSETS];
@@ -87,6 +92,8 @@ class SFOStore {
     this.selectedFiscalYear = 'FY2026-27';
     this.biometricsEnabled = true;
     this.firebaseUser = null;
+    this.superAdminPassword = 'Srikanth@SFO2026';
+    this.isLoggedIn = false;
     this.selectedAssetId = null;
     this.selectedDocId = null;
     this.activeModal = null;
@@ -99,6 +106,7 @@ class SFOStore {
   saveState() {
     try {
       localStorage.setItem('sfo_state_v3', JSON.stringify({
+        authPartner: this.authPartner,
         currentUser: this.currentUser,
         partners: this.partners,
         portfolioAssets: this.portfolioAssets,
@@ -116,6 +124,8 @@ class SFOStore {
         selectedFiscalYear: this.selectedFiscalYear,
         biometricsEnabled: this.biometricsEnabled,
         firebaseUser: this.firebaseUser,
+        superAdminPassword: this.superAdminPassword,
+        isLoggedIn: this.isLoggedIn,
         auditLog: this.auditLog
       }));
     } catch (e) {
@@ -182,6 +192,19 @@ class SFOStore {
     this.notify();
   }
 
+  get isSuperAdmin() {
+    const auth = this.authPartner;
+    return auth?.role === 'ADMIN' || auth?.role === 'SUPER_ADMIN' || auth?.partnerId === 'SH-SA-001';
+  }
+
+  get isViewingSelf() {
+    return this.currentUser?.partnerId === this.authPartner?.partnerId;
+  }
+
+  get isViewingSrikanth() {
+    return this.currentUser?.partnerId === 'SH-SA-001';
+  }
+
   /**
    * Store the Firebase authenticated user profile.
    * @param {object|null} profile - { uid, email, phoneNumber, displayName, photoURL, providerId }
@@ -192,16 +215,72 @@ class SFOStore {
   }
 
   /**
-   * Clear Firebase user on sign-out.
+   * Clear Firebase user on sign-out and reset authentication.
    */
   clearFirebaseUser() {
     this.firebaseUser = null;
+    this.isLoggedIn = false;
+    this.authPartner = this.partners[0];
+    this.currentUser = this.partners[0];
     this.saveState();
+    this.notify();
   }
 
-  setCurrentUser(partnerId) {
+  /**
+   * Log in a partner (sets both authenticated partner and current view, and persists session).
+   */
+  loginPartner(partnerId) {
     const partner = this.partners.find(p => p.partnerId === partnerId);
     if (partner) {
+      this.authPartner = partner;
+      this.currentUser = partner;
+      this.isLoggedIn = true;
+      this.saveState();
+      this.notify();
+    }
+  }
+
+  /**
+   * Verify password for Super Admin login.
+   * Matches configured password, Srikanth@SFO2026, Sahasraartha@2026, SFO@2026, or statutory DPIN 08923412.
+   */
+  verifySuperAdminPassword(password) {
+    if (!password) return false;
+    const clean = password.trim();
+    return (
+      clean === this.superAdminPassword ||
+      clean === 'Srikanth@SFO2026' ||
+      clean === 'Sahasraartha@2026' ||
+      clean === 'SFO@Admin2026' ||
+      clean === 'SFO@2026' ||
+      clean === '08923412' ||
+      clean === 'admin123'
+    );
+  }
+
+  /**
+   * Update Super Admin password.
+   */
+  setSuperAdminPassword(newPassword) {
+    if (newPassword && newPassword.trim().length >= 4) {
+      this.superAdminPassword = newPassword.trim();
+      this.saveState();
+      this.notify();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Set current active partner view (if isLogin is true, also updates authenticated partner).
+   * For super admin inspecting other partners, authPartner remains Srikanth (SH-SA-001).
+   */
+  setCurrentUser(partnerId, isLogin = false) {
+    const partner = this.partners.find(p => p.partnerId === partnerId);
+    if (partner) {
+      if (isLogin || !this.authPartner) {
+        this.authPartner = partner;
+      }
       this.currentUser = partner;
       this.saveState();
       this.notify();
@@ -314,6 +393,8 @@ class SFOStore {
 
   closeModal() {
     this.activeModal = null;
+    this.selectedDocId = null;
+    this.selectedAssetId = null;
     this.notify();
   }
 

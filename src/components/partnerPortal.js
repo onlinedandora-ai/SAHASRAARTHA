@@ -11,12 +11,15 @@
 import { store } from '../state/store.js';
 import { SFO_METADATA, HEADLINE_POSITION, SURPLUS_DRIVERS, OPEN_ITEMS_AND_SOURCES } from '../data/sfo_data.js';
 import { formatINR, formatUnits, formatPercent, formatDate } from '../utils/formatters.js';
+import { renderStatementModal, attachStatementEvents } from './statementModal.js';
+import { downloadStatementPDF } from '../utils/pdfGenerator.js';
 
 export function renderPartnerPortal() {
   const user = store.currentUser;
   const calcs = store.getCalculations();
   const fy = store.selectedFiscalYear;
-  const isSuperAdmin = user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' || user.partnerId === 'SH-SA-001';
+  const isSuperAdmin = store.isSuperAdmin;
+  const isSrikanth = user.partnerId === 'SH-SA-001';
 
   // Individual Partner Calculations
   const partnerUnits = Number(user.unitsAllocated || 0);
@@ -43,32 +46,39 @@ export function renderPartnerPortal() {
       <!-- 1. EXECUTIVE RECONCILED POSITION HEADER -->
       <div class="card highlight-gold" style="padding: 14px 16px; background: linear-gradient(135deg, rgba(234, 88, 12, 0.08) 0%, rgba(212, 175, 55, 0.12) 100%); border: 1.5px solid rgba(212, 175, 55, 0.45);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
-          <div>
+          <div style="flex: 1 1 200px; min-width: 0;">
             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
               <span class="badge ${isSuperAdmin ? 'badge-admin' : 'badge-verified'}" style="font-size: 0.68rem; font-weight: 800; text-transform: uppercase;">
-                ${isSuperAdmin ? '👑 Super Admin / Managing Partner' : '✓ Verified LLP Account Holder'}
+                ${isSuperAdmin ? 'Super Admin / Managing Partner' : 'Verified LLP Account Holder'}
               </span>
               <span style="font-size: 0.7rem; color: var(--accent-gold); font-weight: 800; font-family: monospace;">MCA &bull; ${SFO_METADATA.llpPin}</span>
             </div>
             <h2 style="font-size: 1.15rem; color: var(--text-primary); font-weight: 900; margin: 4px 0 2px 0; letter-spacing: -0.01em;">
-              SAHASRARTHA FAMILY OFFICE LLP
+              SAHASRAARTHA FAMILY OFFICE LLP
             </h2>
             <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0; line-height: 1.35;">
-              Reconciled position as at <strong>13-August-2026</strong> &bull; Prepared from bank, broker and fund-manager records
+              ${isSuperAdmin && !isSrikanth ? `Viewing Partner Account: <strong>${user.fullName}</strong> (${user.partnerId})` : `Reconciled position as at <strong>13-August-2026</strong> &bull; Prepared from bank, broker and fund records`}
             </p>
           </div>
 
-          <!-- Quick Partner Switcher for Super Admin (Srikanth) -->
+          <!-- Quick Partner Switcher for Super Admin (Srikanth) - Persists on all partner selections -->
           ${isSuperAdmin ? `
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-              <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">View Partner Account:</label>
-              <select id="quick-super-admin-partner-select" style="padding: 4px 8px; font-size: 0.72rem; font-weight: 700; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); outline: none; cursor: pointer; max-width: 170px;">
-                ${store.partners.map(p => `
-                  <option value="${p.partnerId}" ${p.partnerId === user.partnerId ? 'selected' : ''}>
-                    ${p.partnerId === 'SH-SA-001' ? '★ ' : ''}${p.fullName.slice(0, 18)} (${p.sharePct}%)
-                  </option>
-                `).join('')}
-              </select>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;">
+              <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Switch Partner View:</label>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <select id="quick-super-admin-partner-select" style="padding: 5px 8px; font-size: 0.72rem; font-weight: 700; border-radius: 8px; border: 1.5px solid var(--accent-gold); background: var(--bg-card); color: var(--text-primary); outline: none; cursor: pointer; max-width: 175px;">
+                  ${store.partners.map(p => `
+                    <option value="${p.partnerId}" ${p.partnerId === user.partnerId ? 'selected' : ''}>
+                      ${p.partnerId === 'SH-SA-001' ? 'Srikanth (Super Admin)' : p.fullName.slice(0, 17) + ` (${p.sharePct}%)`}
+                    </option>
+                  `).join('')}
+                </select>
+                ${!isSrikanth ? `
+                  <button id="btn-reset-to-super-admin" title="Return to Srikanth Super Admin View" style="padding: 5px 8px; font-size: 0.68rem; font-weight: 800; border-radius: 8px; border: 1px solid rgba(234,88,12,0.4); background: #fff7ed; color: #ea580c; cursor: pointer;">
+                    Return
+                  </button>
+                ` : ''}
+              </div>
             </div>
           ` : `
             <div style="text-align: right;">
@@ -79,111 +89,128 @@ export function renderPartnerPortal() {
         </div>
       </div>
 
-      <!-- 2. HEADLINE POSITION SUMMARY TABLE (Direct from Excel Sheet) -->
-      <div class="card" style="padding: 16px; border: 1.5px solid var(--border-color);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px;">
-          <div>
-            <span style="font-size: 0.7rem; color: var(--accent-gold); text-transform: uppercase; font-weight: 800; letter-spacing: 0.04em;">EXECUTIVE SUMMARY</span>
-            <h3 style="font-size: 1.05rem; color: var(--text-primary); font-weight: 800; margin-top: 2px;">HEADLINE POSITION</h3>
+      ${isSuperAdmin && !isSrikanth ? `
+        <!-- Informational Banner for Super Admin inspecting another user -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(234, 88, 12, 0.08); border-radius: 8px; border: 1px solid rgba(234, 88, 12, 0.25); font-size: 0.74rem;">
+          <div style="color: var(--text-primary);">
+            <strong style="color: #ea580c;">Super Admin Inspection Mode:</strong> Showing profile of <strong>${user.fullName}</strong>.
           </div>
-          <span class="badge badge-verified" style="font-size: 0.65rem;">100% Reconciled</span>
+          <button id="btn-reset-to-super-admin-banner" style="background: none; border: none; color: #ea580c; font-weight: 800; cursor: pointer; text-decoration: underline; font-size: 0.72rem;">
+            Switch back to Srikanth &rarr;
+          </button>
         </div>
+      ` : ''}
 
-        <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px;">
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.76rem; min-width: 320px;">
-            <thead>
-              <tr style="border-bottom: 1.5px solid var(--border-color); color: var(--text-secondary); text-align: right;">
-                <th style="text-align: left; padding: 6px 4px; font-weight: 800; font-size: 0.72rem;">Metric</th>
-                <th style="padding: 6px 4px; font-weight: 800; color: #ea580c; font-size: 0.72rem;">13-Aug-2026</th>
-                <th style="padding: 6px 4px; font-weight: 700; font-size: 0.72rem;">31-Mar-2026</th>
-                <th style="padding: 6px 4px; font-weight: 700; font-size: 0.72rem;">07-Jan-2026</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom: 1px solid var(--border-subtle);">
-                <td style="padding: 8px 4px; font-weight: 700; color: var(--text-primary);">Total Assets</td>
-                <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: var(--text-primary); font-family: monospace;">₹1,64,27,861</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,56,02,603</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,60,16,851</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-subtle);">
-                <td style="padding: 8px 4px; font-weight: 700; color: var(--text-primary);">Contributor Funds</td>
-                <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: var(--text-primary); font-family: monospace;">₹1,52,50,001</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,52,50,001</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,52,50,001</td>
-              </tr>
-              <tr style="border-bottom: 1px solid var(--border-subtle); background: rgba(234, 88, 12, 0.04);">
-                <td style="padding: 8px 4px; font-weight: 800; color: #ea580c;">Accumulated Surplus</td>
-                <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: #ea580c; font-family: monospace; font-size: 0.82rem;">₹11,77,860</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹3,52,602</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹7,66,850</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px 4px; font-weight: 700; color: var(--text-primary);">Return on Capital</td>
-                <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: var(--accent-emerald); font-family: monospace; font-size: 0.82rem;">+7.72%</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--accent-emerald); font-family: monospace;">+2.31%</td>
-                <td style="padding: 8px 4px; text-align: right; color: var(--accent-emerald); font-family: monospace;">+5.03%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 8px; border-top: 1px dashed var(--border-subtle); padding-top: 6px;">
-          Note: Contributor funds derived from 36 bank credits (14-May to 26-May-2025). Return is cumulative not annualised.
-        </div>
-      </div>
+      ${isSrikanth ? `
+        <!-- ================================================================ -->
+        <!-- SUPER ADMIN SRIKANTH EXCLUSIVE: EXECUTIVE RECONCILIATION SUMMARY -->
+        <!-- ================================================================ -->
 
-      <!-- 3. WHAT DROVE THE SURPLUS (Inception to 13-Aug-2026) -->
-      <div class="card" style="padding: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 6px; flex-wrap: wrap;">
-          <div>
-            <span style="font-size: 0.7rem; color: var(--accent-gold); text-transform: uppercase; font-weight: 800; letter-spacing: 0.04em;">P&amp;L RECONCILIATION</span>
-            <h3 style="font-size: 1.02rem; color: var(--text-primary); font-weight: 800; margin-top: 2px;">WHAT DROVE THE SURPLUS</h3>
-          </div>
-          <span style="font-size: 0.82rem; font-weight: 900; color: #ea580c; background: #fff7ed; padding: 4px 10px; border-radius: 8px; border: 1px solid #fed7aa;">
-            Total: +₹11,77,860
-          </span>
-        </div>
-
-        <!-- 11 Surplus Drivers Itemized List -->
-        <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
-          ${SURPLUS_DRIVERS.map((item, idx) => {
-            const isPos = item.amount > 0;
-            const isLoss = item.amount < 0;
-            const amtFormatted = isLoss 
-              ? `(₹${Math.abs(item.amount).toLocaleString('en-IN')})` 
-              : `+₹${item.amount.toLocaleString('en-IN')}`;
-            const color = isLoss ? '#ef4444' : '#10b981';
-            const bg = isLoss ? 'rgba(239, 68, 68, 0.04)' : 'rgba(16, 185, 129, 0.04)';
-
-            return `
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 10px; background: ${bg}; border-radius: 8px; border: 1px solid var(--border-subtle); gap: 8px;">
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); line-height: 1.3;">
-                    ${item.component}
-                  </div>
-                  <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; line-height: 1.2;">
-                    ${item.basis}
-                  </div>
-                </div>
-                <div style="font-family: monospace; font-size: 0.84rem; font-weight: 800; color: ${color}; white-space: nowrap; text-align: right;">
-                  ${amtFormatted}
-                </div>
-              </div>
-            `;
-          }).join('')}
-
-          <!-- Sub-total and Total Footer -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fff7ed; border-radius: 10px; border: 1.5px solid #fed7aa; margin-top: 4px;">
+        <!-- 2. HEADLINE POSITION SUMMARY TABLE (Direct from Excel Sheet) -->
+        <div class="card" style="padding: 16px; border: 1.5px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px;">
             <div>
-              <div style="font-size: 0.8rem; font-weight: 800; color: #1e293b;">Sub-Total Explained</div>
-              <div style="font-size: 0.68rem; color: #64748b;">Plus Residual to Reconcile (₹19,937 &bull; 0.13%)</div>
+              <span style="font-size: 0.7rem; color: var(--accent-gold); text-transform: uppercase; font-weight: 800; letter-spacing: 0.04em;">EXECUTIVE SUMMARY</span>
+              <h3 style="font-size: 1.05rem; color: var(--text-primary); font-weight: 800; margin-top: 2px;">HEADLINE POSITION</h3>
             </div>
-            <div style="font-family: monospace; font-size: 1.05rem; font-weight: 900; color: #ea580c;">
-              ₹11,77,860
+            <span class="badge badge-verified" style="font-size: 0.65rem;">100% Reconciled</span>
+          </div>
+
+          <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.76rem; min-width: 320px;">
+              <thead>
+                <tr style="border-bottom: 1.5px solid var(--border-color); color: var(--text-secondary); text-align: right;">
+                  <th style="text-align: left; padding: 6px 4px; font-weight: 800; font-size: 0.72rem;">Metric</th>
+                  <th style="padding: 6px 4px; font-weight: 800; color: #ea580c; font-size: 0.72rem;">13-Aug-2026</th>
+                  <th style="padding: 6px 4px; font-weight: 700; font-size: 0.72rem;">31-Mar-2026</th>
+                  <th style="padding: 6px 4px; font-weight: 700; font-size: 0.72rem;">07-Jan-2026</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border-subtle);">
+                  <td style="padding: 8px 4px; font-weight: 700; color: var(--text-primary);">Total Assets</td>
+                  <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: var(--text-primary); font-family: monospace;">₹1,64,27,861</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,56,02,603</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,60,16,851</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-subtle);">
+                  <td style="padding: 8px 4px; font-weight: 700; color: var(--text-primary);">Contributor Funds</td>
+                  <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: var(--text-primary); font-family: monospace;">₹1,52,50,001</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,52,50,001</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹1,52,50,001</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--border-subtle); background: rgba(234, 88, 12, 0.04);">
+                  <td style="padding: 8px 4px; font-weight: 800; color: #ea580c;">Accumulated Surplus</td>
+                  <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: #ea580c; font-family: monospace; font-size: 0.82rem;">₹11,77,860</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹3,52,602</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary); font-family: monospace;">₹7,66,850</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 4px; font-weight: 700; color: var(--text-primary);">Return on Capital</td>
+                  <td style="padding: 8px 4px; text-align: right; font-weight: 800; color: var(--accent-emerald); font-family: monospace; font-size: 0.82rem;">+7.72%</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--accent-emerald); font-family: monospace;">+2.31%</td>
+                  <td style="padding: 8px 4px; text-align: right; color: var(--accent-emerald); font-family: monospace;">+5.03%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 8px; border-top: 1px dashed var(--border-subtle); padding-top: 6px;">
+            Note: Contributor funds derived from 36 bank credits (14-May to 26-May-2025). Return is cumulative not annualised.
+          </div>
+        </div>
+
+        <!-- 3. WHAT DROVE THE SURPLUS (Inception to 13-Aug-2026) -->
+        <div class="card" style="padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 6px; flex-wrap: wrap;">
+            <div>
+              <span style="font-size: 0.7rem; color: var(--accent-gold); text-transform: uppercase; font-weight: 800; letter-spacing: 0.04em;">P&amp;L RECONCILIATION</span>
+              <h3 style="font-size: 1.02rem; color: var(--text-primary); font-weight: 800; margin-top: 2px;">WHAT DROVE THE SURPLUS</h3>
+            </div>
+            <span style="font-size: 0.82rem; font-weight: 900; color: #ea580c; background: #fff7ed; padding: 4px 10px; border-radius: 8px; border: 1px solid #fed7aa;">
+              Total: +₹11,77,860
+            </span>
+          </div>
+
+          <!-- 11 Surplus Drivers Itemized List -->
+          <div style="display: flex; flex-direction: column; gap: 6px; width: 100%;">
+            ${SURPLUS_DRIVERS.map((item) => {
+              const isLoss = item.amount < 0;
+              const amtFormatted = isLoss 
+                ? `(₹${Math.abs(item.amount).toLocaleString('en-IN')})` 
+                : `+₹${item.amount.toLocaleString('en-IN')}`;
+              const color = isLoss ? '#ef4444' : '#10b981';
+              const bg = isLoss ? 'rgba(239, 68, 68, 0.04)' : 'rgba(16, 185, 129, 0.04)';
+
+              return `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 10px; background: ${bg}; border-radius: 8px; border: 1px solid var(--border-subtle); gap: 8px;">
+                  <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary); line-height: 1.3;">
+                      ${item.component}
+                    </div>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; line-height: 1.2;">
+                      ${item.basis}
+                    </div>
+                  </div>
+                  <div style="font-family: monospace; font-size: 0.84rem; font-weight: 800; color: ${color}; white-space: nowrap; text-align: right;">
+                    ${amtFormatted}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+
+            <!-- Sub-total and Total Footer -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fff7ed; border-radius: 10px; border: 1.5px solid #fed7aa; margin-top: 4px;">
+              <div>
+                <div style="font-size: 0.8rem; font-weight: 800; color: #1e293b;">Sub-Total Explained</div>
+                <div style="font-size: 0.68rem; color: #64748b;">Plus Residual to Reconcile (₹19,937 &bull; 0.13%)</div>
+              </div>
+              <div style="font-family: monospace; font-size: 1.05rem; font-weight: 900; color: #ea580c;">
+                ₹11,77,860
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      ` : ''}
 
       <!-- 4. PARTNER CAPITAL ACCOUNT HOLDING CARD -->
       <div class="card highlight-gold" style="padding: 16px;">
@@ -225,33 +252,80 @@ export function renderPartnerPortal() {
             <strong style="color: var(--accent-emerald); margin-left: 4px; font-weight: 800;">${formatINR(partnerTotalPayouts)}</strong>
           </div>
         </div>
-      </div>
 
-      <!-- 5. KEY AUDIT & RECONCILIATION NOTES (From Verified Sheet) -->
-      <div class="card" style="padding: 16px;">
-        <div class="card-header" style="margin-bottom: 10px;">
-          <h4 style="font-size: 0.95rem; color: var(--text-primary); font-weight: 800;">Official Audit &amp; Reconciliation Notes</h4>
-          <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600;">Statutory Disclosures</span>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-          <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
-            <strong>1. AIF Held:</strong> ARTHA FUND IV (SEBI IN/AIF2/24-25/1507), not Artha Venture Fund II.
-          </div>
-          <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
-            <strong>2. Artha Valuation:</strong> Carried by Nuvama at par (₹20,00,000). Manager capital account says ₹17,15,956. Difference of ₹2,84,044 is fees and diminution.
-          </div>
-          <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
-            <strong>3. Contributor Capital:</strong> All ₹1,52,50,001 is partner equity credited to partners capital on opening operational accounts.
-          </div>
-          <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
-            <strong>4. Dry Powder Strategy:</strong> ₹15,07,071 held at broker cash ledger. Nifty ~2% pullback avoided ~₹30,000 MTM loss.
-          </div>
-          <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
-            <strong>5. Artha NAV/Unit:</strong> Statement quotes NAV ₹102.88 yet closing is ₹17,15,955.80 (₹85.80/unit). Line-item build-up supports the lower value.
-          </div>
+        <div style="display: flex; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
+          <button class="btn btn-secondary btn-sm" id="btn-home-open-statement" style="flex: 1; padding: 8px 10px; font-size: 0.76rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; border-radius: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>View Statement</span>
+          </button>
+          <button class="btn btn-primary btn-sm" id="btn-home-download-pdf" style="flex: 1; padding: 8px 10px; font-size: 0.76rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; border-radius: 8px; box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download PDF</span>
+          </button>
         </div>
       </div>
+
+      ${!isSrikanth ? `
+        <!-- PARTNER SPECIFIC ACTIVITY (Filtered strictly to this partner) -->
+        ${(() => {
+          const partnerTxs = store.capitalTransactions.filter(tx => 
+            tx.partnerId === user.partnerId || 
+            (tx.partnerName && user.fullName && tx.partnerName.toLowerCase().includes(user.fullName.toLowerCase().split(' ')[0]))
+          );
+          if (partnerTxs.length === 0) return '';
+          return `
+            <div class="card" style="padding: 16px;">
+              <div class="card-header" style="margin-bottom: 10px;">
+                <h4 style="font-size: 0.95rem; color: var(--text-primary); font-weight: 800;">Your Account Activity</h4>
+                <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600;">Verified Transactions</span>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                ${partnerTxs.slice(0, 4).map(tx => `
+                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg-input); border-radius: 10px; border: 1px solid var(--border-color); font-size: 0.78rem; gap: 10px;">
+                    <div style="min-width: 0; flex: 1;">
+                      <div style="font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tx.notes || tx.transactionType}</div>
+                      <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 2px;">${formatDate(tx.paymentDate)} &bull; ${tx.paymentMode}</div>
+                    </div>
+                    <div style="text-align: right; flex-shrink: 0;">
+                      <div style="font-weight: 800; color: ${tx.transactionType === 'PROFIT_DISTRIBUTION' ? 'var(--accent-emerald)' : 'var(--accent-gold)'}; font-size: 0.92rem;">
+                        ${formatINR(tx.amount)}
+                      </div>
+                      <span class="badge badge-${tx.status.toLowerCase()}" style="font-size: 0.6rem; margin-top: 2px;">${tx.status}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        })()}
+      ` : `
+        <!-- 5. KEY AUDIT & RECONCILIATION NOTES (Srikanth Super Admin Exclusive) -->
+        <div class="card" style="padding: 16px;">
+          <div class="card-header" style="margin-bottom: 10px;">
+            <h4 style="font-size: 0.95rem; color: var(--text-primary); font-weight: 800;">Official Audit &amp; Reconciliation Notes</h4>
+            <span style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600;">Statutory Disclosures</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+            <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
+              <strong>1. AIF Held:</strong> ARTHA FUND IV (SEBI IN/AIF2/24-25/1507), not Artha Venture Fund II.
+            </div>
+            <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
+              <strong>2. Artha Valuation:</strong> Carried by Nuvama at par (₹20,00,000). Manager capital account says ₹17,15,956. Difference of ₹2,84,044 is fees and diminution.
+            </div>
+            <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
+              <strong>3. Contributor Capital:</strong> All ₹1,52,50,001 is partner equity credited to partners capital on opening operational accounts.
+            </div>
+            <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
+              <strong>4. Dry Powder Strategy:</strong> ₹15,07,071 held at broker cash ledger. Nifty ~2% pullback avoided ~₹30,000 MTM loss.
+            </div>
+            <div style="padding: 8px 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-secondary); line-height: 1.35;">
+              <strong>5. Artha NAV/Unit:</strong> Statement quotes NAV ₹102.88 yet closing is ₹17,15,955.80 (₹85.80/unit). Line-item build-up supports the lower value.
+            </div>
+          </div>
+        </div>
+      `}
 
       <!-- 6. ACTIVE CAPITAL CALL NOTICE (If Active) -->
       ${activeCall ? `
@@ -292,6 +366,30 @@ export function attachPartnerEvents() {
   document.getElementById('quick-super-admin-partner-select')?.addEventListener('change', (e) => {
     const partnerId = e.target.value;
     store.setCurrentUser(partnerId);
+  });
+
+  // Reset back to Super Admin (Srikanth)
+  document.getElementById('btn-reset-to-super-admin')?.addEventListener('click', () => {
+    store.setCurrentUser('SH-SA-001');
+  });
+
+  document.getElementById('btn-reset-to-super-admin-banner')?.addEventListener('click', () => {
+    store.setCurrentUser('SH-SA-001');
+  });
+
+  // View Statement & Download PDF direct triggers
+  document.getElementById('btn-home-open-statement')?.addEventListener('click', () => {
+    const modal = document.getElementById('statement-modal-wrapper');
+    if (modal) {
+      modal.innerHTML = renderStatementModal({ isOpen: true });
+      attachStatementEvents();
+    }
+  });
+
+  document.getElementById('btn-home-download-pdf')?.addEventListener('click', () => {
+    const user = store.currentUser;
+    const calcs = store.getCalculations();
+    downloadStatementPDF(user, calcs);
   });
 
   // Pay active call

@@ -1,0 +1,15 @@
+{
+  "version": "1.0.2",
+  "versionCode": 2,
+  "releaseDate": "2026-08-27",
+  "minRequiredVersion": "1.0.0",
+  "apkUrl": "https://saharaartha-f867c.web.app/downloads/Sahasraartha-SFO.apk",
+  "title": "Sahasraartha SFO Update Available",
+  "releaseNotes": "Performance enhancements, real-time live sync with hosting, and instant ledger updates.",
+  "features": [
+    "⚡ Instant Live Cloud Updates from Firebase Hosting",
+    "🔔 Real-time portfolio valuation & notifications",
+    "📋 Super Admin approval workflow and Ledger enhancements"
+  ],
+  "forceUpdate": false
+}

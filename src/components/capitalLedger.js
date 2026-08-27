@@ -10,6 +10,8 @@
 
 import { store } from '../state/store.js';
 import { formatINR, formatDate } from '../utils/formatters.js';
+import { SFO_METADATA } from '../data/sfo_data.js';
+import { downloadDocumentVaultPDF } from '../utils/pdfGenerator.js';
 
 let ledgerTypeFilter = 'ALL'; // 'ALL' | 'INFLOW' | 'OUTFLOW'
 let selectedTxType = 'ALL';
@@ -185,18 +187,24 @@ function renderCapitalCallModal(call, user, quota) {
   const bank = SFO_METADATA.bankReceiving;
 
   return `
-    <div class="modal-backdrop active" id="capital-call-modal-backdrop">
-      <div class="modal-sheet" style="max-height: 90vh; overflow-y: auto;">
+    <div class="modal-backdrop active" id="capital-call-modal-backdrop" style="position: fixed; inset: 0; background: rgba(5, 8, 16, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 14px;">
+      <div class="modal-sheet" style="max-height: 90vh; width: 100%; max-width: 600px; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 16px; overflow-y: auto;">
         
-        <div class="modal-header">
-          <div>
-            <span class="role-tag role-lp" style="font-size: 0.65rem;">Action / Capital Call</span>
-            <h3 style="font-size: 1.15rem; color: var(--text-primary); margin-top: 2px;">Capital Call Payment & UTR Proof</h3>
+        <div class="modal-header" style="padding: 14px 18px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" id="btn-back-call-modal" style="padding: 6px 12px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; border-radius: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+              <span>Back</span>
+            </button>
+            <div>
+              <span class="role-tag role-lp" style="font-size: 0.65rem;">Action / Capital Call</span>
+              <h3 style="font-size: 1.05rem; color: var(--text-primary); margin: 2px 0 0 0; font-weight: 800;">Capital Call Payment & UTR Proof</h3>
+            </div>
           </div>
-          <button class="modal-close" id="btn-close-call-modal">&times;</button>
+          <button class="modal-close" id="btn-close-call-modal" style="background: rgba(255,255,255,0.08); border: none; color: var(--text-secondary); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">&times;</button>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 14px; padding: 18px;">
           
           <!-- Quota Overview -->
           <div class="card highlight-gold" style="padding: 14px;">
@@ -293,9 +301,14 @@ function renderCapitalCallModal(call, user, quota) {
                 </div>
               </div>
 
-              <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
-                Submit for Verification & Unit Allotment
-              </button>
+              <div style="display: flex; gap: 8px; margin-top: 6px;">
+                <button type="button" class="btn btn-secondary" id="btn-cancel-call-bottom" style="flex: 1;">
+                  Cancel & Back
+                </button>
+                <button type="submit" class="btn btn-primary" style="flex: 2;">
+                  Submit for Verification
+                </button>
+              </div>
             </div>
           </form>
 
@@ -328,8 +341,18 @@ export function attachCapitalLedgerEvents() {
     store.openModal('CAPITAL_CALL');
   });
 
-  document.getElementById('btn-close-call-modal')?.addEventListener('click', () => {
+  const closeCallModal = () => {
     store.closeModal();
+  };
+
+  document.getElementById('btn-close-call-modal')?.addEventListener('click', closeCallModal);
+  document.getElementById('btn-back-call-modal')?.addEventListener('click', closeCallModal);
+  document.getElementById('btn-cancel-call-bottom')?.addEventListener('click', closeCallModal);
+
+  document.getElementById('capital-call-modal-backdrop')?.addEventListener('click', (e) => {
+    if (e.target.id === 'capital-call-modal-backdrop') {
+      closeCallModal();
+    }
   });
 
   // UTR submission form
@@ -359,7 +382,18 @@ export function attachCapitalLedgerEvents() {
   document.querySelectorAll('.btn-download-voucher').forEach(btn => {
     btn.addEventListener('click', () => {
       const txId = btn.getAttribute('data-tx-id');
-      alert(`[SFO Statutory Ledger]: Generating certified transaction voucher for ${txId} with MCA DPIN watermark...`);
+      const tx = store.capitalTransactions.find(t => t.transactionId === txId);
+      if (tx) {
+        const dummyDoc = {
+          title: `Capital Transaction Voucher ${tx.transactionId}`,
+          documentId: tx.transactionId,
+          docType: tx.transactionType,
+          folder: 'Ledger',
+          uploadedAt: tx.paymentDate,
+          description: `Certified ledger receipt for ${tx.notes || tx.transactionType} amounting to INR ${Number(tx.amount || 0).toLocaleString('en-IN')}`
+        };
+        downloadDocumentVaultPDF(dummyDoc, store.currentUser);
+      }
     });
   });
 }

@@ -14,6 +14,7 @@ const RAW_PARTNERS = [
     legalName: "Srikanth Ayinavolu",
     fatherName: "Ayinavolu",
     email: "srikanth@sahasraartha.in",
+    aliases: ["sahasraarthasfo@gmail.com", "srikanth.ayinavolu@gmail.com"],
     mobile: "+919821837797",
     role: "ADMIN",
     unitsAllocated: 12000.0000,
