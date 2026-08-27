@@ -60,7 +60,8 @@ class SFOStore {
         this.biometricsEnabled = parsed.biometricsEnabled !== undefined ? parsed.biometricsEnabled : true;
         this.firebaseUser = parsed.firebaseUser || null; // { uid, email, phoneNumber, displayName, photoURL, providerId }
         this.superAdminPassword = parsed.superAdminPassword || 'Srikanth@SFO2026';
-        this.isLoggedIn = parsed.isLoggedIn !== undefined ? parsed.isLoggedIn : false;
+        this.partnerPasswords = parsed.partnerPasswords || {};
+        this.isLoggedIn = parsed.isLoggedIn !== undefined ? parsed.isLoggedIn : true;
         this.selectedAssetId = null;
         this.selectedDocId = null;
         this.activeModal = null; // 'STATEMENT' | 'CAPITAL_CALL' | 'DISTRIBUTION_RUN' | 'PROPOSAL' | 'DOC_PREVIEW' | 'DRILLDOWN' | 'BANK_UPDATE' | 'AUTH'
@@ -93,7 +94,8 @@ class SFOStore {
     this.biometricsEnabled = true;
     this.firebaseUser = null;
     this.superAdminPassword = 'Srikanth@SFO2026';
-    this.isLoggedIn = false;
+    this.partnerPasswords = {};
+    this.isLoggedIn = true;
     this.selectedAssetId = null;
     this.selectedDocId = null;
     this.activeModal = null;
@@ -125,6 +127,7 @@ class SFOStore {
         biometricsEnabled: this.biometricsEnabled,
         firebaseUser: this.firebaseUser,
         superAdminPassword: this.superAdminPassword,
+        partnerPasswords: this.partnerPasswords,
         isLoggedIn: this.isLoggedIn,
         auditLog: this.auditLog
       }));
@@ -269,6 +272,61 @@ class SFOStore {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Verify password for any individual partner or super admin.
+   */
+  verifyPartnerPassword(partnerId, password) {
+    if (!password || !partnerId) return false;
+    const clean = password.trim();
+    const partner = this.partners.find(p => p.partnerId === partnerId);
+    if (!partner) return false;
+
+    // 1. If Super Admin, check super admin password list
+    if (partner.partnerId === 'SH-SA-001' || partner.role === 'ADMIN' || partner.role === 'SUPER_ADMIN') {
+      if (this.verifySuperAdminPassword(clean)) return true;
+    }
+
+    // 2. Check partner's saved custom password
+    if (this.partnerPasswords && this.partnerPasswords[partnerId]) {
+      if (this.partnerPasswords[partnerId] === clean) return true;
+    }
+
+    // 3. Default partner master passcodes accepted out-of-the-box
+    if (
+      clean === 'SFO@2026' ||
+      clean === 'Sahasraartha@2026' ||
+      clean === 'Partner@2026' ||
+      clean === 'SFO@Admin2026' ||
+      clean === 'admin123'
+    ) {
+      return true;
+    }
+
+    // 4. Partner's statutory DPIN or PAN or last 4 digits
+    if (partner.dpin && clean.toLowerCase() === partner.dpin.toLowerCase()) return true;
+    if (partner.pan && clean.toLowerCase() === partner.pan.toLowerCase()) return true;
+    if (partner.mobile && clean === partner.mobile.replace(/\D/g, '').slice(-4)) return true;
+
+    return false;
+  }
+
+  /**
+   * Update custom password for a specific partner.
+   */
+  setPartnerPassword(partnerId, newPassword) {
+    if (!partnerId || !newPassword || newPassword.trim().length < 4) return false;
+    this.partnerPasswords = this.partnerPasswords || {};
+    this.partnerPasswords[partnerId] = newPassword.trim();
+
+    if (partnerId === 'SH-SA-001') {
+      this.superAdminPassword = newPassword.trim();
+    }
+
+    this.saveState();
+    this.notify();
+    return true;
   }
 
   /**

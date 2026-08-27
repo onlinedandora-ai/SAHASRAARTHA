@@ -32,7 +32,7 @@ import { initAppUpdateService } from './services/appUpdateService.js';
 
 // Detect platform or default
 const isAndroid = /Android/i.test(navigator.userAgent);
-let isAuthenticated = false; // Always require login on app launch - prevent direct login
+let isAuthenticated = false; // Show normal login page on app launch
 
 // ─── Initialize Firebase, Firestore Live Sync, Notifications & App Updates ───
 try {
@@ -52,7 +52,7 @@ checkRedirectResult().then(result => {
     store.setFirebaseUser(result.profile);
     const email = result.profile.email ? result.profile.email.toLowerCase() : '';
     const phone = result.profile.phoneNumber;
-    const isSuperAdminEmail = email === 'sahasraarthasfo@gmail.com' || email === 'srikanth.ayinavolu@gmail.com' || email === 'srikanth@sahasraartha.in';
+    const isSuperAdminEmail = email === 'sahasraarthasfo@gmail.com' || email === 'srikanth.ayinavolu@gmail.com' || email === 'srikanth@sahasraartha.in' || email === 'srikanth.a3@gmail.com';
 
     let matched = null;
     if (isSuperAdminEmail) {

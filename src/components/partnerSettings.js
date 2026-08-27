@@ -137,26 +137,24 @@ export function renderPartnerSettings() {
       <div class="card" style="margin-bottom: 14px; padding: 16px;">
         <h4 style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 10px;">Security & Passcode Protection</h4>
 
-        ${store.isSuperAdmin ? `
-          <!-- Super Admin Master Password Settings -->
-          <div style="background: rgba(234, 88, 12, 0.08); border: 1px solid rgba(234, 88, 12, 0.25); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span style="font-weight: 700; font-size: 0.84rem; color: #ea580c; display: flex; align-items: center; gap: 6px;">
-                Super Admin Master Password
-              </span>
-              <span class="badge" style="background: #fff7ed; color: #ea580c; font-size: 0.65rem; font-weight: 800;">Protected</span>
-            </div>
-            <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0 0 10px 0;">
-              Master password used to authenticate Srikanth Ayinavolu across mobile devices.
-            </p>
-            <div style="display: flex; gap: 8px;">
-              <input type="password" id="input-new-super-admin-pass" placeholder="Enter new master password" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; border: 1.5px solid #ede4da; background: var(--bg-card); color: var(--text-primary); outline: none;">
-              <button id="btn-update-admin-pass" class="btn btn-primary btn-sm" style="padding: 8px 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
-                Save Password
-              </button>
-            </div>
+        <!-- Partner Personal Password Settings -->
+        <div style="background: rgba(234, 88, 12, 0.08); border: 1px solid rgba(234, 88, 12, 0.25); border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-weight: 700; font-size: 0.84rem; color: #ea580c; display: flex; align-items: center; gap: 6px;">
+              ${store.isSuperAdmin ? 'Super Admin Master Password' : 'Your Personal Login Password'}
+            </span>
+            <span class="badge" style="background: #fff7ed; color: #ea580c; font-size: 0.65rem; font-weight: 800;">Protected</span>
           </div>
-        ` : ''}
+          <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0 0 10px 0;">
+            ${store.isSuperAdmin ? 'Master password used to authenticate Srikanth Ayinavolu across mobile devices.' : `Set or change the login password for ${user.fullName} (${user.email}).`}
+          </p>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" id="input-new-partner-pass" placeholder="Enter new personal password" style="flex: 1; padding: 8px 12px; font-size: 0.8rem; border-radius: 8px; border: 1.5px solid #ede4da; background: var(--bg-card); color: var(--text-primary); outline: none;">
+            <button id="btn-update-partner-pass" class="btn btn-primary btn-sm" style="padding: 8px 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
+              Save Password
+            </button>
+          </div>
+        </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
           <div>
@@ -314,16 +312,18 @@ export function attachPartnerSettingsEvents() {
   });
 
   // Update Super Admin Master Password
-  document.getElementById('btn-update-admin-pass')?.addEventListener('click', () => {
-    const input = document.getElementById('input-new-super-admin-pass');
+  // Update Partner Password
+  document.getElementById('btn-update-partner-pass')?.addEventListener('click', () => {
+    const input = document.getElementById('input-new-partner-pass');
     const newPass = input ? input.value.trim() : '';
     if (!newPass || newPass.length < 4) {
       alert('Password must be at least 4 characters long.');
       return;
     }
-    const success = store.setSuperAdminPassword(newPass);
+    const currentPartnerId = store.currentUser?.partnerId || 'SH-SA-001';
+    const success = store.setPartnerPassword(currentPartnerId, newPass);
     if (success) {
-      alert('Super Admin Master Password updated successfully!');
+      alert(`Password for ${store.currentUser.fullName} updated successfully! You can now log in with this password.`);
       if (input) input.value = '';
     }
   });
