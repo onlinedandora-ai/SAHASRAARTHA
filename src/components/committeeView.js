@@ -61,7 +61,7 @@ export function renderCommitteeView() {
             <div class="metric-card">
               <span class="metric-label">Contributor Funds</span>
               <span class="metric-value">${formatINR(HEADLINE_POSITION.asOf13Aug2026.contributorFunds)}</span>
-              <span style="font-size: 0.76rem; color: var(--text-muted);">28 Partners Whitelisted</span>
+              <span style="font-size: 0.76rem; color: var(--text-muted);">28 Partners Wishlisted</span>
             </div>
 
             <div class="metric-card">

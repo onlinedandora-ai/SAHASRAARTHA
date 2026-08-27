@@ -178,9 +178,9 @@ export function renderIOSLogin() {
 
       </div>
 
-      <!-- Partner Whitelist / Test Account Selector -->
+      <!-- Partner Wishlist / Test Account Selector -->
       <div class="auth-managing-prompt" style="margin-top: 24px;">
-        Official Member or Testing? <a class="auth-link-orange" id="link-partner-whitelist-btn-ios">Partner Whitelist</a>
+        Official Member or Testing? <a class="auth-link-orange" id="link-partner-whitelist-btn-ios">Partner Wishlist</a>
       </div>
 
       <!-- Footer matching reference -->
@@ -191,7 +191,7 @@ export function renderIOSLogin() {
       </div>
 
       <!-- ======================================================== -->
-      <!-- MODAL SHEETS (Partner Whitelist, Super Admin, Phone, Email)-->
+      <!-- MODAL SHEETS (Partner Wishlist, Super Admin, Phone, Email)-->
       <!-- ======================================================== -->
       ${renderAuthModalSheetIOS()}
 
@@ -224,7 +224,7 @@ function renderAuthModalSheetIOS() {
     );
   }
 
-  // 1. PARTNER WHITELIST ACCOUNTS MODAL SHEET
+  // 1. PARTNER WISHLIST ACCOUNTS MODAL SHEET
   if (activeSheet === 'PARTNER_WHITELIST') {
     return `
       <div class="auth-sheet-backdrop" id="sheet-backdrop-ios">
@@ -235,7 +235,7 @@ function renderAuthModalSheetIOS() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               </div>
               <div>
-                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">Partner Whitelist</h3>
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800;">Partner Wishlist</h3>
                 <p style="margin: 2px 0 0 0; font-size: 0.74rem; color: var(--text-muted);">${allPartners.length} Verified Accounts &bull; 1-Click Fast Login (Zero Passwords/OTPs)</p>
               </div>
             </div>
@@ -373,7 +373,7 @@ function renderAuthModalSheetIOS() {
             </button>
 
             <button class="auth-pill-btn-outline" id="btn-view-all-partners-from-phone-ios" style="font-size: 0.82rem; padding: 10px;">
-              👥 Choose from 28 Partner Whitelist Accounts
+              👥 Choose from 28 Partner Wishlist Accounts
             </button>
           </div>
         </div>
@@ -410,7 +410,7 @@ function renderAuthModalSheetIOS() {
             </button>
 
             <button class="auth-pill-btn-outline" id="btn-view-all-partners-from-email-ios" style="font-size: 0.82rem; padding: 10px;">
-              👥 Choose from 28 Partner Whitelist Accounts
+              👥 Choose from 28 Partner Wishlist Accounts
             </button>
           </div>
         </div>
