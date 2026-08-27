@@ -5,8 +5,7 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "**/*.apk",
-      "**/downloads/**"
+      "**/*.apk"
     ],
     "rewrites": [
       {
@@ -20,7 +19,7 @@
         "headers": [
           {
             "key": "Content-Disposition",
-            "value": "attachment"
+            "value": "attachment; filename=\"Sahasraartha-SFO.apk\""
           },
           {
             "key": "Content-Type",

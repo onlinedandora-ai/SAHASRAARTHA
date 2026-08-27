@@ -3,7 +3,6 @@
   "appName": "Sahasraartha SFO",
   "webDir": "dist",
   "server": {
-    "url": "https://saharaartha-f867c.web.app",
     "cleartext": true,
     "androidScheme": "https"
   },

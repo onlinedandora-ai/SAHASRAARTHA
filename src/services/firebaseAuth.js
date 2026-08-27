@@ -83,7 +83,7 @@ import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 // ─── Google Sign-In ──────────────────────────────────────────────────────────
-const GOOGLE_CLIENT_ID = '302063091598-5e9k6hl03ah79i7vluanl7muumtmgi9g.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '1056041223530-rk07f2vb2vuc6g4b840g51talslo1p2j.apps.googleusercontent.com';
 
 /**
  * Sign in with Google (Native Android/iOS Account Picker via Capacitor GoogleAuth, or Web Popup).

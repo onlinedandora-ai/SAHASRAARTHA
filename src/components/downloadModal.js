@@ -10,7 +10,7 @@
 
 export function renderDownloadModal() {
   const currentUrl = window.location.origin;
-  const apkDownloadUrl = `${currentUrl}/downloads/Sahasraartha-SFO.apk`;
+  const apkDownloadUrl = `${currentUrl}/downloads/Sahasraartha-SFO.bin`;
   const qrCodeApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(apkDownloadUrl)}&bgcolor=0a0f1d&color=d4af37`;
 
   return `
